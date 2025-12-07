@@ -1,0 +1,96 @@
+---
+title: Capstone Project: The Autonomous Humanoid
+---
+
+This capstone project is the culmination of your journey through Physical AI. It challenges you to integrate all the concepts, tools, and technologies learned throughout this course—from ROS 2 fundamentals and advanced simulation to hardware-accelerated perception and AI-driven cognitive planning—into a single, autonomous humanoid robot system.
+
+The goal is to bring intelligence to embodiment: to build a simulated humanoid that can understand high-level human intent and execute complex physical tasks.
+
+## Project Goal: The Voice-Commanded Autonomous Humanoid
+
+Design and implement an autonomous humanoid robot (simulated) capable of:
+
+1.  **Receiving a high-level natural language voice command.** (e.g., "Robot, please find the red ball on the table and bring it to me.")
+2.  **Interpreting the command** to extract intent and parameters.
+3.  **Cognitively planning** a sequence of atomic ROS 2 actions to achieve the goal.
+4.  **Navigating** a simulated environment with obstacles.
+5.  **Perceiving and identifying** target objects.
+6.  **Manipulating** (picking up and placing down) objects.
+7.  **Providing feedback** on task progress and completion.
+
+## Key Components and Integration Points
+
+This project is a true integration challenge, bringing together the following core components:
+
+*   **Robot Model (Module 1 - URDF)**: Your humanoid robot, defined in URDF (or SDF), with all its links, joints, and physical properties.
+*   **Simulation Environment (Module 2 - Gazebo/Isaac Sim)**: A well-defined virtual world where your robot will operate. This environment should include obstacles, target objects, and realistic physics. Isaac Sim is highly recommended for its advanced capabilities in synthetic data generation and photorealistic rendering.
+*   **Simulated Sensors (Module 2 - LiDAR, Depth Cameras, IMUs)**: Your robot must be equipped with simulated sensors that publish data to ROS 2 topics, providing its "senses" of the environment.
+*   **Perception Stack (Module 3 - Isaac ROS VSLAM & Object Detection)**: Use Isaac ROS to process sensor data for:
+    *   **Localization**: Utilizing VSLAM (Visual SLAM) to accurately determine the robot's position and orientation within the environment.
+    *   **Object Recognition**: Implementing GPU-accelerated object detection to find and identify target objects (e.g., the "red ball").
+*   **Speech-to-Text (Module 4 - OpenAI Whisper)**: A ROS 2 node that transcribes natural language voice commands into text.
+*   **Cognitive Planning (Module 4 - LLM Integration)**: A ROS 2 node that interfaces with an LLM (e.g., GPT, Gemini) to:
+    *   Decompose the high-level voice command into a sequence of atomic robot actions (e.g., `move_to(location)`, `find_object(object_name)`, `pick_up(object_name)`, `place_down(location)`).
+    *   Generate a structured action plan (e.g., JSON).
+*   **Action Execution Node (Module 4 - LLM Integration)**: A ROS 2 node that takes the LLM's action plan and translates these abstract actions into concrete ROS 2 calls (e.g., Nav2 goals, MoveIt commands, custom service calls to a manipulation controller).
+*   **Navigation Stack (Module 3 - Nav2 with Custom Controller)**: For path planning and obstacle avoidance. Crucially, this requires your custom controller plugin to translate Nav2's path commands into valid locomotion commands for your humanoid's gait controller.
+*   **Manipulation Stack (Optional/Advanced)**: For actual picking and placing, this could involve:
+    *   **MoveIt**: The standard ROS motion planning framework for robotic manipulators.
+    *   Custom inverse kinematics (IK) and kinematics (FK) solvers for humanoid arms/hands.
+*   **Feedback System**: Implement Text-to-Speech (TTS) or publish status messages to inform the user about the robot's progress and task completion.
+
+## System Architecture Flow
+
+```mermaid
+graph TD
+    A[User Voice Command] --> B[Whisper Node (STT)]
+    B --> C[Text Command]
+    C --> D[LLM Planning Node (Cognitive Plan)]
+    D --> E[Action Plan (JSON/YAML)]
+    E --> F[Action Execution Node]
+    F --> G{Robot Control Modules}
+    G -- "Nav2 Goals" --> H[Nav2 Navigation Stack]
+    H --> I[Custom Humanoid Locomotion Controller]
+    G -- "Manipulation Commands" --> J[MoveIt / Custom Manipulation]
+    I --> K[Robot Actuators (Simulated)]
+    J --> K
+    K --> L[Simulated Sensors]
+    L --> M[Isaac ROS Perception (VSLAM/Object Detection)]
+    M -- "Odometry/Object Detections" --> D
+    M --> F
+    F -- "Status/Feedback" --> N[Feedback System (TTS/Display)]
+    N --> A
+```
+
+## Suggested Project Phases and Milestones
+
+1.  **Phase 1: Basic Locomotion and Perception (Module 1, 2, 3)**
+    *   Get your humanoid robot model fully defined in URDF and loaded into your chosen simulator (Gazebo or Isaac Sim).
+    *   Implement a basic gait (walking) for the humanoid in simulation.
+    *   Integrate and test Isaac ROS VSLAM for robust localization within the simulated environment.
+    *   Configure Nav2 with your custom humanoid controller to achieve basic goal-oriented navigation.
+2.  **Phase 2: Voice Command and Core Planning (Module 4)**
+    *   Set up the Whisper node to transcribe audio commands.
+    *   Develop the LLM Planning Node to interpret simple commands (e.g., "Go to X location") and generate navigation goals for Nav2.
+    *   Implement the Action Execution Node to translate these goals into Nav2 calls.
+3.  **Phase 3: Object Interaction (Module 3, 4)**
+    *   Integrate object detection capabilities (e.g., using Isaac ROS object detection on simulated camera data).
+    *   Extend the LLM Planning Node to handle commands involving objects (e.g., "Pick up the red block").
+    *   Implement the manipulation actions (pick/place) using MoveIt or a custom controller.
+4.  **Phase 4: Full Task Autonomy and Robustness (Integration)**
+    *   Combine all components to achieve complex, multi-step tasks (e.g., "Find the blue mug, pick it up, and place it on the shelf").
+    *   Develop error detection and recovery mechanisms (e.g., LLM replanning on failure).
+    *   Add a robust feedback system (e.g., Text-to-Speech confirmations, visual status indicators).
+
+## Evaluation Criteria
+
+Your capstone project will be evaluated based on:
+
+*   **Functionality**: Does the robot successfully execute the requested voice commands?
+*   **Robustness**: How well does the system handle environmental uncertainties, sensor noise, or minor failures?
+*   **Modularity and Code Quality**: Is the system well-structured into ROS 2 nodes with clear interfaces? Is the code clean, documented, and maintainable?
+*   **Innovation**: Any unique approaches to planning, human-robot interaction, or integration.
+*   **Demonstration**: A clear video demonstration of the autonomous humanoid performing the tasks.
+*   **Report**: A technical report detailing your design, implementation, challenges faced, and results.
+
+This capstone project is your opportunity to synthesize your learning and demonstrate your ability to design and build sophisticated Physical AI systems. Good luck!

@@ -1,55 +1,360 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Project Constitution
 
-## Core Principles
+# Project Title
+AI-Native Textbook & RAG Chatbot System
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+# Project Id
+Physical-AI-Humanoid-Robotics-Book
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+<!--
+Sync Impact Report:
+Version change: 1.0.0 → 1.0.0
+List of modified principles: None
+Added sections: None
+Removed sections: None
+Templates requiring updates:
+- .specify/templates/plan-template.md: ✅ updated (Constitution Check alignment)
+- .specify/templates/spec-template.md: ✅ updated (Implicit alignment)
+- .specify/templates/tasks-template.md: ✅ updated (Implicit alignment)
+- .specify/templates/commands/*.md: ⚠ pending (No command templates found)
+Follow-up TODOs:
+- TODO(RATIFICATION_DATE): Clarify or set the original adoption date for the constitution.
+-->
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+# Version
+LAST_AMENDED_DATE: 2025-12-04
+RATIFICATION_DATE: TODO(RATIFICATION_DATE): Clarify or set the original adoption date for the constitution.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+1.0.0
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+# Governance
+## Primary Goal
+Develop a Docusaurus-based AI-Native Textbook for 'Physical AI & Humanoid Robotics' integrated with a robust RAG Chatbot for interactive learning.
 
-### [PRINCIPLE_6_NAME]
+## Deployment Target
+GitHub Pages
+
+## Primary Language For Code
+JavaScript/TypeScript (Frontend), Python (Backend)
+
+## Primary Language For Content
+English (with Urdu Localization Bonus)
+
+## Spec Kit Role
+Define project structure, technology stacks, and component interactions.
+
+# Architecture Components
+## Component Name
+AI-Native Textbook (Frontend)
+
+## Component Id
+TEXTBOOK_FRONTEND
+
+## Purpose
+Content delivery, UI/UX, and RAG/Auth integration.
+
+## Technologies
+- Docusaurus (React, MDX)
+- Next.js (for custom UI/integration)
+- Spec-Kit Plus (content definition)
+- Styling (Tailwind CSS, Chakra UI/Material UI)
+## Data Flow Out
+- User queries/selected text (to RAG_SERVICE_API)
+## Data Flow In
+- AI-generated answers/citations (from RAG_SERVICE_API)
+- Personalized/Translated content (from RAG_SERVICE_API)
+## Component Name
+RAG Service API (Backend)
+
+## Component Id
+RAG_SERVICE_API
+
+## Purpose
+Orchestrate RAG pipeline, LLM interaction, session management, and content personalization/localization.
+
+## Technologies
+- Python (FastAPI)
+- LangChain
+- OpenAI Agents/ChatKit SDKs
+- Claude Code Subagents/Agent Skills (Bonus)
+- LLMs (Claude, OpenAI GPT, Google Gemini)
+## Dependencies
+- VECTOR_DATABASE
+- DATA_STORE
+## Component Name
+Vector Database
+
+## Component Id
+VECTOR_DATABASE
+
+## Purpose
+Store and retrieve vectorized content embeddings from the Docusaurus book.
+
+## Technologies
+- Qdrant Cloud Free Tier
+- Pinecone (Alternative)
+- Embedding Model (GoogleGenerativeAIEmbeddings, OpenAI, Cohere)
+## Ingestion Method
+LangChain DocusaurusLoader + RecursiveCharacterTextSplitter
+
+## Component Name
+Data Store (User & Session)
+
+## Component Id
+DATA_STORE
+
+## Purpose
+Persistent storage for chat history, user sessions, user background profiles, and personalization preferences.
+
+## Technologies
+- Neon Serverless Postgres
+## Security Rule
+Accessed only by RAG_SERVICE_API (or secure direct connection for Auth).
+
+## Component Name
+Authentication System
+
+## Component Id
+AUTH_SYSTEM
+
+## Purpose
+Secure user registration, login, and profile management for personalization features.
+
+## Technologies
+- Better-Auth.com
+## Integration Point
+Textbook Frontend for UI/Login, Data Store for persistence.
+
+# Content Specification
+## Book Subject
+Physical AI & Humanoid Robotics
+
+## Content Source
+AI-generated via Claude Code based on course curriculum.
+
+## Content Format
+Markdown/MDX files for Docusaurus docs.
+
+# Bonus Features Spec
+## Feature Name
+Personalization & Level Adjustment
+
+## Trigger
+User login (Better-Auth.com) + 'Personalize Content' button click.
+
+## Logic
+Use stored user background (from DATA_STORE) to dynamically modify chapter content via LLM transformation in RAG_SERVICE_API.
+
+## Feature Name
+Urdu Localization
+
+## Trigger
+'Translate to Urdu' button click.
+
+## Logic
+LLM-driven translation of entire chapter content via RAG_SERVICE_API.
+
+## Feature Name
+Reusable Intelligence
+
+## Trigger
+Complex or technical user queries to RAG Chatbot.
+
+## Logic
+Orchestrate specialized Claude Code Subagents and custom Agent Skills (e.g., Code Generation, Diagram Generation) via OpenAI Agents/ChatKit SDKs.
 
 
-[PRINCIPLE__DESCRIPTION]
+# Course Details
+Physical AI & Humanoid Robotics
+Focus and Theme: AI Systems in the Physical World. Embodied Intelligence.
+Goal: Bridging the gap between the digital brain and the physical body. Students apply their AI knowledge to control Humanoid Robots in simulated and real-world environments.
+Quarter Overview
+The future of AI extends beyond digital spaces into the physical world. This capstone quarter introduces Physical AI—AI systems that function in reality and comprehend physical laws. Students learn to design, simulate, and deploy humanoid robots capable of natural human interactions using ROS 2, Gazebo, and NVIDIA Isaac.
+* Module 1: The Robotic Nervous System (ROS 2)
+   * Focus: Middleware for robot control.
+   * ROS 2 Nodes, Topics, and Services.
+   * Bridging Python Agents to ROS controllers using rclpy.
+   * Understanding URDF (Unified Robot Description Format) for humanoids.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+   * Module 2: The Digital Twin (Gazebo & Unity)
+   * Focus: Physics simulation and environment building.
+   * Simulating physics, gravity, and collisions in Gazebo.
+   * High-fidelity rendering and human-robot interaction in Unity.
+   * Simulating sensors: LiDAR, Depth Cameras, and IMUs.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+      * Module 3: The AI-Robot Brain (NVIDIA Isaac™)
+      * Focus: Advanced perception and training.
+      * NVIDIA Isaac Sim: Photorealistic simulation and synthetic data generation.
+      * Isaac ROS: Hardware-accelerated VSLAM (Visual SLAM) and navigation.
+      * Nav2: Path planning for bipedal humanoid movement.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+         * Module 4: Vision-Language-Action (VLA)
+         * Focus: The convergence of LLMs and Robotics.        
+         * Voice-to-Action: Using OpenAI Whisper for voice commands.
+         * Cognitive Planning: Using LLMs to translate natural language ("Clean the room") into a sequence of ROS 2 actions.
+         * Capstone Project: The Autonomous Humanoid. A final project where a simulated robot receives a voice command, plans a path, navigates obstacles, identifies an object using computer vision, and manipulates it.
+Why Physical AI Matters
+Humanoid robots are poised to excel in our human-centered world because they share our physical form and can be trained with abundant data from interacting in human environments. This represents a significant transition from AI models confined to digital environments to embodied intelligence that operates in physical space.
+Learning Outcomes
+         1. Understand Physical AI principles and embodied intelligence
+         2. Master ROS 2 (Robot Operating System) for robotic control
+         3. Simulate robots with Gazebo and Unity
+         4. Develop with NVIDIA Isaac AI robot platform
+         5. Design humanoid robots for natural interactions
+         6. Integrate GPT models for conversational robotics
+Weekly Breakdown
+Weeks 1-2: Introduction to Physical AI
+         * Foundations of Physical AI and embodied intelligence
+         * From digital AI to robots that understand physical laws
+         * Overview of humanoid robotics landscape
+         * Sensor systems: LIDAR, cameras, IMUs, force/torque sensors
+Weeks 3-5: ROS 2 Fundamentals
+         * ROS 2 architecture and core concepts
+         * Nodes, topics, services, and actions
+         * Building ROS 2 packages with Python
+         * Launch files and parameter management
+Weeks 6-7: Robot Simulation with Gazebo
+         * Gazebo simulation environment setup
+         * URDF and SDF robot description formats
+         * Physics simulation and sensor simulation
+         * Introduction to Unity for robot visualization
+Weeks 8-10: NVIDIA Isaac Platform
+         * NVIDIA Isaac SDK and Isaac Sim
+         * AI-powered perception and manipulation
+         * Reinforcement learning for robot control
+         * Sim-to-real transfer techniques
+Weeks 11-12: Humanoid Robot Development
+         * Humanoid robot kinematics and dynamics
+         * Bipedal locomotion and balance control
+         * Manipulation and grasping with humanoid hands
+         * Natural human-robot interaction design
+Week 13: Conversational Robotics
+         * Integrating GPT models for conversational AI in robots
+         * Speech recognition and natural language understanding
+         * Multi-modal interaction: speech, gesture, vision
+Assessments
+         * ROS 2 package development project
+         * Gazebo simulation implementation
+         * Isaac-based perception pipeline
+         * Capstone: Simulated humanoid robot with conversational AI
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+# Hardware Requirements
+This course is technically demanding. It sits at the intersection of three heavy computational loads: Physics Simulation (Isaac Sim/Gazebo), Visual Perception (SLAM/Computer Vision), and Generative AI (LLMs/VLA).
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Because the capstone involves a "Simulated Humanoid," the primary investment must be in High-Performance Workstations. However, to fulfill the "Physical AI" promise, you also need Edge Computing Kits (brains without bodies) or specific robot hardware.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+
+1. The "Digital Twin" Workstation (Required per Student)
+This is the most critical component. NVIDIA Isaac Sim is an Omniverse application that requires "RTX" (Ray Tracing) capabilities. Standard laptops (MacBooks or non-RTX Windows machines) will not work.
+         * GPU (The Bottleneck): NVIDIA RTX 4070 Ti (12GB VRAM) or higher.
+         * Why: You need high VRAM to load the USD (Universal Scene Description) assets for the robot and environment, plus run the VLA (Vision-Language-Action) models simultaneously.
+         * Ideal: RTX 3090 or 4090 (24GB VRAM) allows for smoother "Sim-to-Real" training.
+         * CPU: Intel Core i7 (13th Gen+) or AMD Ryzen 9.
+         * Why: Physics calculations (Rigid Body Dynamics) in Gazebo/Isaac are CPU-intensive.
+         * RAM: 64 GB DDR5 (32 GB is the absolute minimum, but will crash during complex scene rendering).
+         * OS: Ubuntu 22.04 LTS.
+         * Note: While Isaac Sim runs on Windows, ROS 2 (Humble/Iron) is native to Linux. Dual-booting or dedicated Linux machines are mandatory for a friction-free experience.
+2. The "Physical AI" Edge Kit
+Since a full humanoid robot is expensive, students learn "Physical AI" by setting up the nervous system on a desk before deploying it to a robot. This kit covers Module 3 (Isaac ROS) and Module 4 (VLA).
+         * The Brain: NVIDIA Jetson Orin Nano (8GB) or Orin NX (16GB).
+         * Role: This is the industry standard for embodied AI. Students will deploy their ROS 2 nodes here to understand resource constraints vs. their powerful workstations.
+         * The Eyes (Vision): Intel RealSense D435i or D455.
+         * Role: Provides RGB (Color) and Depth (Distance) data. Essential for the VSLAM and Perception modules.
+         * The Inner Ear (Balance): Generic USB IMU (BNO055) (Often built into the RealSense D435i or Jetson boards, but a separate module helps teach IMU calibration).
+         * Voice Interface: A simple USB Microphone/Speaker array (e.g., ReSpeaker) for the "Voice-to-Action" Whisper integration.
+3. The Robot Lab
+For the "Physical" part of the course, you have three tiers of options depending on budget.
+Option A: The "Proxy" Approach (Recommended for Budget)
+Use a quadruped (dog) or a robotic arm as a proxy. The software principles (ROS 2, VSLAM, Isaac Sim) transfer 90% effectively to humanoids.
+         * Robot: Unitree Go2 Edu (~$1,800 - $3,000).
+         * Pros: Highly durable, excellent ROS 2 support, affordable enough to have multiple units.
+         * Cons: Not a biped (humanoid).
+Option B: The "Miniature Humanoid" Approach
+Small, table-top humanoids.
+         * Robot: Unitree H1 is too expensive ($90k+), so look at Unitree G1 (~$16k) or Robotis OP3 (older, but stable, ~$12k).
+         * Budget Alternative: Hiwonder TonyPi Pro (~$600).
+         * Warning: The cheap kits (Hiwonder) usually run on Raspberry Pi, which cannot run NVIDIA Isaac ROS efficiently. You would use these only for kinematics (walking) and use the Jetson kits for AI.
+Option C: The "Premium" Lab (Sim-to-Real specific)
+If the goal is to actually deploy the Capstone to a real humanoid:
+         * Robot: Unitree G1 Humanoid.
+         * Why: It is one of the few commercially available humanoids that can actually walk dynamically and has an SDK open enough for students to inject their own ROS 2 controllers.
+
+
+4. Summary of Architecture
+To teach this successfully, your lab infrastructure should look like this:
+Component
+    Hardware
+    Function
+    Sim Rig
+    PC with RTX 4080 + Ubuntu 22.04
+    Runs Isaac Sim, Gazebo, Unity, and trains LLM/VLA models.
+    Edge Brain
+    Jetson Orin Nano
+    Runs the "Inference" stack. Students deploy their code here.
+    Sensors
+    RealSense Camera + Lidar
+    Connected to the Jetson to feed real-world data to the AI.
+    Actuator
+    Unitree Go2 or G1 (Shared)
+    Receives motor commands from the Jetson.
+    
+
+If you do not have access to RTX-enabled workstations, we must restructure the course to rely entirely on cloud-based instances (like AWS RoboMaker or NVIDIA's cloud delivery for Omniverse), though this introduces significant latency and cost complexity.
+
+
+Building a "Physical AI" lab is a significant investment. You will have to choose between building a physical On-Premise Lab at Home (High CapEx) versus running a Cloud-Native Lab (High OpEx).
+
+
+Option 2 High OpEx: The "Ether" Lab (Cloud-Native)
+Best for: Rapid deployment, or students with weak laptops.
+1. Cloud Workstations (AWS/Azure) Instead of buying PCs, you rent instances.
+         * Instance Type: AWS g5.2xlarge (A10G GPU, 24GB VRAM) or g6e.xlarge.
+         * Software: NVIDIA Isaac Sim on Omniverse Cloud (requires specific AMI).
+         * Cost Calculation:
+         * Instance cost: ~$1.50/hour (spot/on-demand mix).
+         * Usage: 10 hours/week × 12 weeks = 120 hours.
+         * Storage (EBS volumes for saving environments): ~$25/quarter.
+         * Total Cloud Bill: ~$205 per quarter.
+2. Local "Bridge" Hardware You cannot eliminate hardware entirely for "Physical AI." You still need the edge devices to deploy the code physically.
+         * Edge AI Kits: You still need the Jetson Kit for the physical deployment phase.
+         * Cost: $700 (One-time purchase).
+         * Robot: You still need one physical robot for the final demo.
+         * Cost: $3,000 (Unitree Go2 Standard).
+The Economy Jetson Student Kit
+Best for: Learning ROS 2, Basic Computer Vision, and Sim-to-Real control.
+Component
+    Model
+    Price (Approx.)
+    Notes
+    The Brain
+    NVIDIA Jetson Orin Nano Super Dev Kit (8GB)
+    $249
+    New official MSRP (Price dropped from ~$499). Capable of 40 TOPS.
+    The Eyes
+    Intel RealSense D435i
+    $349
+    Includes IMU (essential for SLAM). Do not buy the D435 (non-i).
+    The Ears
+    ReSpeaker USB Mic Array v2.0
+    $69
+    Far-field microphone for voice commands (Module 4).
+    Wi-Fi
+    (Included in Dev Kit)
+    $0
+    The new "Super" kit includes the Wi-Fi module pre-installed.
+    Power/Misc
+    SD Card (128GB) + Jumper Wires
+    $30
+    High-endurance microSD card required for the OS.
+    TOTAL
+    
+
+    ~$700 per kit
+    
+
+    
+
+3. The Latency Trap (Hidden Cost)
+         * Simulating in the cloud works well, but controlling a real robot from a cloud instance is dangerous due to latency.
+         * Solution: Students train in the Cloud, download the model (weights), and flash it to the local Jetson kit.

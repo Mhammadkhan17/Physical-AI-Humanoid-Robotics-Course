@@ -1,0 +1,166 @@
+---
+title: Simulating Sensors
+---
+
+A robot without sensors is blind, deaf, and dumb. To create an intelligent digital twin, we must give our simulated robot the ability to "see" and "feel" its virtual environment. This is achieved by simulating sensors. Accurate sensor simulation is critical for developing and testing the perception, localization, and navigation algorithms that form the foundation of a robot's autonomy.
+
+In Gazebo, sensors are not magical entities; they are implemented using **Plugins**. A plugin is a self-contained, compiled library that can be attached to a link in your robot's model (via its URDF or SDF file) to add new functionality, such as simulating a specific type of sensor.
+
+This chapter covers how to simulate three of the most common sensors in robotics: LiDARs, depth cameras, and IMUs.
+
+## Simulating a 2D LiDAR
+
+A **LiDAR (Light Detection and Ranging)** sensor is the workhorse of 2D navigation and mapping. It spins a laser beam in a plane, measuring the distance to objects at many points around the robot.
+
+*   **Gazebo Plugin**: `libgazebo_ros_laser.so` (the exact name may vary slightly between ROS/Gazebo versions, e.g., `libgazebo_ros_ray_sensor.so`). This plugin casts a specified number of "rays" into the simulated world and reports the distance at which they hit an object.
+*   **ROS Output**: The plugin publishes `sensor_msgs/LaserScan` messages on a ROS topic. This message is an array of distance measurements (ranges) for each ray.
+
+### Example: Adding a LiDAR to a URDF
+
+To add a LiDAR, you create a new link for the sensor and attach it to your robot's `base_link` with a `fixed` joint. Then, you add the `<gazebo>` tag with a `<sensor>` block.
+
+```xml
+<!-- A link for our LiDAR sensor -->
+<link name="laser_link"></link>
+
+<joint name="laser_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="laser_link"/>
+  <origin xyz="0.1 0 0.2" rpy="0 0 0"/>
+</joint>
+
+<!-- Gazebo plugin for the LiDAR -->
+<gazebo reference="laser_link">
+  <sensor type="ray" name="hokuyo_laser">
+    <pose>0 0 0 0 0 0</pose>
+    <visualize>true</visualize>  <!-- Show the laser beams in the GUI -->
+    <update_rate>20.0</update_rate> <!-- Publish at 20 Hz -->
+    <ray>
+      <scan>
+        <horizontal>
+          <samples>720</samples>
+          <resolution>1</resolution>
+          <min_angle>-1.5708</min_angle>
+          <max_angle>1.5708</max_angle>
+        </horizontal>
+      </scan>
+      <range>
+        <min>0.10</min>
+        <max>10.0</max>
+        <resolution>0.01</resolution>
+      </range>
+      <noise>
+        <type>gaussian</type>
+        <mean>0.0</mean>
+        <stddev>0.01</stddev>
+      </noise>
+    </ray>
+    <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_laser.so">
+      <topicName>/scan</topicName>
+      <frameName>laser_link</frameName>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+*Key Parameters:*
+*   `<samples>`: The number of laser beams to simulate per scan.
+*   `<min_angle>`/`<max_angle>`: The start and end angle of the scan (in radians).
+*   `<range>`: The minimum and maximum distance the laser can detect.
+*   `<noise>`: **Crucially important for realism**. Real sensors are noisy. Adding a small amount of Gaussian noise makes your simulation a much better approximation of reality.
+
+## Simulating a Depth Camera
+
+A depth camera (like an Intel RealSense or Microsoft Kinect) is a powerful sensor that provides two types of images: a standard color (RGB) image and a **depth image**, where each pixel's value corresponds to its distance from the camera. This is essential for 3D perception and obstacle avoidance.
+
+*   **Gazebo Plugin**: `libgazebo_ros_camera.so` or the more specific `libgazebo_ros_depth_camera.so`.
+*   **ROS Output**: This plugin can publish multiple topics:
+    *   `sensor_msgs/Image` for the RGB color image.
+    *   `sensor_msgs/Image` for the depth image.
+    *   `sensor_msgs/PointCloud2` for a 3D point cloud constructed from the depth data.
+    *   `sensor_msgs/CameraInfo` with the camera's intrinsic calibration parameters.
+
+### Example: Adding a Depth Camera
+
+The setup is similar to the LiDAR, attaching a sensor to a link.
+
+```xml
+<gazebo reference="camera_link">
+  <sensor type="depth" name="realsense_camera">
+    <update_rate>30.0</update_rate>
+    <camera name="head">
+      <horizontal_fov>1.047</horizontal_fov> <!-- ~60 degrees -->
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.1</near>
+        <far>100</far>
+      </clip>
+      <noise>
+        <type>gaussian</type>
+        <mean>0.0</mean>
+        <stddev>0.007</stddev>
+      </noise>
+    </camera>
+    <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+      <frame_name>camera_link_optical</frame_name>
+      <!-- Topic names can be remapped -->
+      <camera_name>realsense</camera_name>
+      <image_topic_name>rgb/image_raw</image_topic_name>
+      <camera_info_topic_name>rgb/camera_info</camera_info_topic_name>
+      <depth_image_topic_name>depth/image_raw</depth_image_topic_name>
+      <depth_info_topic_name>depth/camera_info</depth_info_topic_name>
+      <point_cloud_topic_name>depth/points</point_cloud_topic_name>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+## Simulating an IMU
+
+An **IMU (Inertial Measurement Unit)** is the robot's sense of balance. It measures orientation, angular velocity, and linear acceleration, which is vital for stabilizing the robot and estimating its state.
+
+*   **Gazebo Plugin**: `libgazebo_ros_imu_sensor.so`
+*   **ROS Output**: Publishes `sensor_msgs/Imu` messages, which contain a `Quaternion` for orientation, and `Vector3` messages for angular velocity and linear acceleration.
+
+### Example: Adding an IMU
+
+Real IMUs are notoriously noisy and suffer from drift. Simulating this noise is absolutely critical for testing any localization or state estimation algorithm (like an Extended Kalman Filter).
+
+```xml
+<gazebo reference="imu_link">
+  <sensor name="my_imu" type="imu">
+    <always_on>true</always_on>
+    <update_rate>100</update_rate>
+    <imu>
+      <angular_velocity>
+        <x>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+          </noise>
+        </x>
+        <!-- Noise for Y and Z axes -->
+      </angular_velocity>
+      <linear_acceleration>
+        <x>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+          </noise>
+        </x>
+        <!-- Noise for Y and Z axes -->
+      </linear_acceleration>
+    </imu>
+    <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+      <topicName>imu</topicName>
+      <frameName>imu_link</frameName>
+      <updateRateHZ>100.0</updateRateHZ>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+By leveraging Gazebo's powerful sensor plugins, you can create a simulated robot that perceives its environment in a way that closely mimics a real-world robot. This allows you to develop and debug complex autonomy software with confidence before ever touching physical hardware.

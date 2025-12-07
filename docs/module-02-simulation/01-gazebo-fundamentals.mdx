@@ -1,0 +1,118 @@
+---
+id: gazebo-fundamentals
+title: Gazebo Fundamentals
+slug: /module-02-simulation/01-gazebo-fundamentals
+---
+
+Welcome to Module 2: The Digital Twin (Gazebo & Unity). This chapter introduces Gazebo, a powerful 3D robotics simulator widely used in conjunction with ROS. A digital twin allows us to develop, test, and refine robot behaviors in a safe, repeatable virtual environment before deploying to physical hardware.
+
+## What is Gazebo?
+
+Gazebo is an open-source 3D robotics simulator that accurately simulates populations of robots in complex indoor and outdoor environments. It provides a robust physics engine, high-quality graphics, and convenient interfaces for sensors and actuators. Crucially, Gazebo integrates seamlessly with ROS, allowing you to use the same ROS nodes for both simulated and real robots.
+
+### Key Capabilities of Gazebo:
+
+*   **Physics Engine**: Accurate simulation of gravity, friction, collisions, and other physical phenomena.
+*   **3D Graphics**: Realistic rendering of environments and robots.
+*   **Sensor Simulation**: Emulation of various sensors like cameras, LiDAR, IMUs, and depth sensors.
+*   **Actuator Control**: Interfaces to control robot joints and effectors.
+*   **ROS Integration**: Native support for ROS 2 messages and services.
+
+## Gazebo World and Models
+
+In Gazebo, a **World** defines the environment in which robots operate. A world file (typically `.world` or `.sdf`) specifies static objects (e.g., walls, furniture), lighting, gravity, and the initial placement of robots and other dynamic objects.
+
+**Models** represent individual robots or objects within the Gazebo world. These models are often described using SDF (Simulation Description Format) or URDF (Unified Robot Description Format).
+
+```xml
+<!-- Example: Simple Gazebo World (snippet) -->
+<sdf version='1.6'>
+  <world name='my_simple_world'>
+    <gravity>0 0 -9.8</gravity>
+    <light type='directional' name='sun'>
+      <cast_shadows>1</cast_shadows>
+      <pose>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 -0.5 -1</direction>
+    </light>
+    <model name='ground_plane'>
+      <static>true</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grass</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- Robot models would be included here -->
+  </world>
+</sdf>
+```
+
+## Launching Gazebo with ROS 2
+
+Gazebo can be launched from ROS 2 using launch files (e.g., `.launch.py` or `.launch.xml`). These launch files allow you to start the Gazebo server, load a specific world, and spawn robot models, all from a single command.
+
+```python
+# Example: ROS 2 launch file for Gazebo (snippet)
+import os
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    gazebo_ros_package_dir = get_package_share_directory('gazebo_ros')
+    # ... (other setup)
+
+    return LaunchDescription([
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(gazebo_ros_package_dir, 'launch', 'gazebo.launch.py')
+            ),
+            launch_arguments={'world': 'empty.world'}.items()
+        ),
+        Node(
+            package='gazebo_ros',
+            executable='spawn_entity.py',
+            arguments=['-entity', 'my_robot', '-topic', 'robot_description'],
+            output='screen',
+        ),
+    ])
+```
+
+By mastering Gazebo fundamentals, you lay the groundwork for simulating complex humanoid behaviors, which is a crucial step in Physical AI development.

@@ -1,0 +1,59 @@
+---
+title: Nav2 Path Planning for Humanoids
+---
+
+For a robot to move autonomously from one point to another, it needs a robust navigation system. In ROS 2, the standard solution is **Nav2**. Nav2 is a powerful, configurable navigation stack designed to get a robot to a desired goal pose safely and efficiently, while avoiding obstacles. While Nav2 excels with wheeled robots, adapting it for a bipedal humanoid requires special considerations due to humanoids' unique locomotion capabilities and constraints.
+
+This chapter explores Nav2's core architecture and how to customize it for humanoid robots.
+
+## Nav2 Core Architecture
+
+Nav2 is not a single program but a collection of modular servers and nodes that work together, often coordinated by a **Behavior Tree (BT) Navigator**.
+
+*   **Behavior Tree Navigator**: This is the high-level orchestrator. Instead of rigid finite state machines, Nav2 uses flexible Behavior Trees to define the robot's navigation logic. Common tasks include:
+    *   **`ComputePathToPose`**: Plan a global path.
+    *   **`FollowPath`**: Execute the path locally.
+    *   **Recovery Behaviors**: Handle situations like getting stuck (e.g., `ClearCostmap`, `Spin`).
+*   **Planner Server**:
+    *   **Role**: Computes a collision-free path from the robot's current position to a distant goal. This is the **global path**.
+    *   **Algorithms**: Uses global planning algorithms like A* or Dijkstra's algorithm.
+    *   **`global_costmap`**: Operates on the global costmap, a large map of the environment used for long-range planning.
+*   **Controller Server**:
+    *   **Role**: Executes the global path by generating short-term velocity commands (`geometry_msgs/Twist`) to send to the robot's base. This is the **local trajectory**.
+    *   **Algorithms**: Uses local planning algorithms like Dynamic Window Approach (DWA) or Timed Elastic Band (TEB).
+    *   **`local_costmap`**: Operates on a smaller, constantly updated costmap around the robot for immediate obstacle avoidance.
+*   **Costmap Filters/Layers**: Both global and local costmaps are built from multiple layers (e.g., static map, obstacle layer from sensor data, inflation layer to keep robot clear of obstacles).
+
+## Humanoid-Specific Challenges with Nav2
+
+Nav2 was primarily designed for differential-drive or omnidirectional wheeled robots. Humanoids, however, present several challenges:
+
+1.  **Locomotion Model**: Wheeled robots use `Twist` messages (linear x/y, angular z velocity). Humanoids use complex gait patterns, foot placement, and balance control to walk. They cannot simply spin in place or strafe as easily.
+2.  **Footprint**: A wheeled robot usually has a simple circular or rectangular footprint. A humanoid's footprint changes as it walks, and its arms/legs can extend beyond its base, making obstacle avoidance more complex.
+3.  **Recovery Behaviors**: Simple recovery behaviors like "spin 360" are often not applicable or safe for a humanoid.
+
+## Adapting Nav2 for Humanoids: The Custom Controller Plugin
+
+The most significant adaptation required for humanoid navigation with Nav2 is to implement a **Custom Controller Plugin**.
+
+*   **Concept**: Instead of providing a `geometry_msgs/Twist` directly, your custom controller receives the desired global path from the Nav2 Planner. It then translates this path into commands suitable for the humanoid's specific locomotion controller.
+*   **Input**: The custom controller plugin still subscribes to the global path from the Planner Server and uses the `local_costmap` for immediate obstacle detection.
+*   **Output**: Instead of publishing `Twist` messages, your custom controller might:
+    *   Publish to a `/humanoid_walking_commands` topic with custom message types (e.g., desired step length, walking speed, turn rate).
+    *   Call a ROS 2 service exposed by the humanoid's low-level gait controller (e.g., `set_gait_parameters`).
+
+### Other Customizations:
+
+1.  **Costmap Footprint**: You will need to carefully define a more accurate, perhaps dynamic, `footprint` for the humanoid in your Nav2 configuration. This ensures that the costmaps correctly represent the robot's physical extent and prevent collisions with its limbs.
+2.  **Behavior Tree Nodes**: You might need to add custom Behavior Tree nodes for humanoid-specific recovery behaviors. For instance, a "take a step back" action might be more appropriate than a simple "spin" if the humanoid gets too close to an obstacle.
+
+## Conceptual Workflow for Humanoid Navigation
+
+1.  **Goal Request**: A user or higher-level AI sends a goal pose (x, y, yaw) to Nav2 (e.g., via RViz or an action client).
+2.  **Global Planning**: The Nav2 Planner Server computes a global path to this goal using the `global_costmap`.
+3.  **Local Control (Custom)**: Your custom Humanoid Controller Plugin receives this global path.
+4.  **Locomotion Command Generation**: Based on the robot's current pose, joint states, and the local costmap, your custom controller determines the necessary walking commands (e.g., where to place the next foot, how fast to swing the legs, balance adjustments).
+5.  **Low-Level Execution**: These walking commands are sent to the humanoid's low-level gait controller, which then actuates the individual joint motors to perform the walk.
+6.  **Feedback**: Odometry from the robot (e.g., from an IMU and joint encoders) is fed back into Nav2 for continuous localization.
+
+While integrating humanoids with Nav2 adds a layer of complexity, the modularity and extensibility of the Nav2 stack make it feasible. By focusing on a well-designed custom controller plugin and carefully configured costmaps, you can leverage Nav2's robust capabilities for path planning and obstacle avoidance in bipedal robots.

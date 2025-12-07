@@ -31,7 +31,11 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- **Primary Goal**: Ensure plan aligns with developing a Docusaurus-based AI-Native Textbook for 'Physical AI & Humanoid Robotics' integrated with a robust RAG Chatbot for interactive learning.
+- **Deployment Target**: Confirm plan is suitable for GitHub Pages deployment.
+- **Primary Language For Code**: Adhere to JavaScript/TypeScript (Frontend) and Python (Backend) for new code.
+- **Primary Language For Content**: Content creation and localization efforts must align with English (with Urdu Localization Bonus).
+- **Spec Kit Role**: Ensure plan clearly defines project structure, technology stacks, and component interactions as per Spec Kit.
 
 ## Project Structure
 

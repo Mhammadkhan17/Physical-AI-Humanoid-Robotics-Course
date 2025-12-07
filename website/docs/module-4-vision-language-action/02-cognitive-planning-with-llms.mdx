@@ -1,0 +1,96 @@
+---
+title: Cognitive Planning with LLMs
+---
+
+Imagine telling a robot, "Please clean the room," and it understands, plans, and executes the necessary steps. This is the promise of **Cognitive Planning with Large Language Models (LLMs)**. It bridges the vast gap between high-level human intent expressed in natural language and the precise, atomic actions a robot must perform. LLMs are not just for generating text; they are becoming powerful reasoning engines for robotic control.
+
+## The Role of LLMs in Robotic Planning
+
+Traditional robotic planning often relies on predefined state machines or symbolic planning languages (like PDDL). While effective for constrained problems, they struggle with the ambiguity and vastness of real-world human commands. LLMs, with their immense pre-trained knowledge, offer a new paradigm:
+
+*   **Semantic Understanding**: LLMs excel at interpreting complex, nuanced natural language instructions, handling synonyms, implied meanings, and contextual cues.
+*   **Task Decomposition**: They can break down a high-level goal (e.g., "make coffee") into a logical sequence of sub-tasks (e.g., "get mug," "fill with water," "insert pod").
+*   **Common Sense Reasoning**: LLMs possess a vast amount of implicit world knowledge. They understand that "washing dishes" involves water and soap, or that a "cup" needs to be upright to be filled. This common sense helps in generating more robust and realistic plans.
+*   **Adaptability**: With proper prompting, LLMs can adapt plans based on dynamic environmental factors or robot capabilities.
+
+## The Cognitive Planning Pipeline (LLM + ROS 2)
+
+Connecting an LLM to a robot in a practical way involves a carefully orchestrated pipeline within the ROS 2 framework.
+
+### 1. Input: High-Level Natural Language Command
+
+This command typically comes from a Speech-to-Text system (like the Whisper node discussed in the previous chapter) and is published to a ROS 2 topic (e.g., `/voice_commands/text`). Example: `"Robot, could you please organize my desk?"`
+
+### 2. LLM "Reasoning" Node (The Planner)
+
+This is a dedicated ROS 2 node that acts as the interface to the LLM API (e.g., OpenAI's GPT models, Google's Gemini, or local models).
+
+*   **Prompt Engineering**: This is the most critical component. The prompt provided to the LLM instructs it on its role and expected output. It should include:
+    *   **Role Definition**: "You are a helpful robot planning assistant..."
+    *   **Goal**: The natural language command received from the user.
+    *   **Available Actions**: A list of atomic, executable robot actions with their parameters (e.g., `move_to(location: string)`, `pick_up(object_name: string)`, `place_down(object_name: string, location: string)`).
+    *   **Context**: Current robot state (e.g., `current_location: "kitchen"`), available objects, map information, or user preferences.
+    *   **Output Format**: A strict request for the output format, usually JSON or YAML, to make parsing easy.
+
+    **Example Prompt Snippet:**
+    ```
+    "You are a robotic assistant. Your task is to decompose a high-level user command into a sequence of atomic robot actions.
+    Available actions:
+    - move_to(location: string)
+    - find_object(object_name: string)
+    - pick_up(object_name: string)
+    - place_down(object_name: string, location: string)
+    
+    Current Robot State: {{ current_robot_state_json_or_text }}
+    
+    User Command: '{{ user_command }}'
+    
+    Provide your plan as a JSON list of actions. Example:
+    [
+      {"action": "move_to", "location": "living_room"},
+      {"action": "find_object", "object_name": "red_ball"}
+    ]
+    "
+    ```
+*   **LLM Call**: The node makes an API call to the LLM with the constructed prompt.
+*   **Output Parsing**: It parses the structured (e.g., JSON) response from the LLM, which contains the proposed sequence of actions.
+
+### 3. Action Execution Node (The Executor)
+
+This is another ROS 2 node that receives the structured action plan from the LLM Reasoning Node.
+
+*   **Action Mapping**: It maps the generic actions defined for the LLM (e.g., `pick_up`) to specific, low-level ROS 2 interfaces. This might involve:
+    *   Calling a `move_base_goal` action server (Nav2) for `move_to` commands.
+    *   Interfacing with a `MoveIt` action server for `pick_up`/`place_down` operations.
+    *   Subscribing to camera topics and calling object detection services for `find_object`.
+*   **Execution Monitoring**: It executes each action sequentially, monitors its success or failure, and reports the status. If an action fails, it can inform the LLM Reasoning Node, potentially triggering a replanning phase.
+
+## Example Workflow: "Clean the Room"
+
+1.  **User says:** "Robot, please clean the room."
+2.  **Whisper Node:** Transcribes and publishes `"Robot, please clean the room."` to `/voice_commands/text`.
+3.  **LLM Reasoning Node:** Subscribes to `/voice_commands/text`. Constructs a prompt, including current room state (e.g., "desk has a mug and a book, floor has trash"). Sends the prompt to the LLM.
+4.  **LLM Output (Example JSON):**
+    ```json
+    [
+      {"action": "move_to", "location": "desk"},
+      {"action": "pick_up", "object_name": "mug"},
+      {"action": "move_to", "location": "shelf"},
+      {"action": "place_down", "object_name": "mug", "location": "shelf"},
+      {"action": "move_to", "location": "floor"},
+      {"action": "pick_up", "object_name": "trash"},
+      {"action": "move_to", "location": "trash_bin"},
+      {"action": "place_down", "object_name": "trash", "location": "trash_bin"}
+    ]
+    ```
+5.  **Action Execution Node:** Receives this JSON list. It then calls the appropriate ROS 2 actions/services for `move_to`, `pick_up`, and `place_down`, passing the extracted `location` and `object_name` parameters.
+
+## Challenges and Future Directions
+
+*   **Grounding**: Ensuring the LLM's plan is physically executable by the robot within its current capabilities and environment. An LLM might suggest an action the robot simply cannot perform.
+*   **Error Recovery and Replanning**: What happens if an action fails (e.g., the robot drops the mug)? The system needs mechanisms for detecting failures and prompting the LLM to generate a revised plan.
+*   **Computational Cost and Latency**: Running large LLMs, especially iteratively for replanning, can be slow and expensive. Techniques like local LLMs (running on powerful edge devices) or smaller, specialized models are being explored.
+*   **Safety and Ethics**: Preventing the robot from performing unsafe or unethical actions, even if the LLM suggests them. This requires robust safety protocols and human oversight.
+*   **Multi-modal Input**: Future systems will combine natural language with visual input (e.g., "pick up *that* red mug" while pointing).
+
+By harnessing the reasoning capabilities of LLMs, we are moving closer to robots that can understand and respond to the complex, nuanced world of human interaction, making them truly intelligent and versatile partners.

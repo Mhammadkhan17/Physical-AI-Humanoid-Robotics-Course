@@ -1,0 +1,64 @@
+---
+id: urdf-vs-sdf
+title: URDF vs. SDF
+slug: /module-02-simulation/02-urdf-vs-sdf
+---
+
+When working with robotics simulations, especially in Gazebo, you'll encounter two primary formats for describing robots and environments: URDF (Unified Robot Description Format) and SDF (Simulation Description Format). While both serve to define robot kinematics and dynamics, they have distinct purposes and capabilities.
+
+## URDF (Unified Robot Description Format)
+
+URDF is primarily designed for describing a robot's kinematics and dynamics for use within ROS. It focuses on a single robot, defining its links, joints, visual properties, collision properties, and inertial properties. It's an excellent format for representing the robot itself.
+
+### Key Characteristics of URDF:
+
+*   **Single Robot**: Describes one robot in isolation.
+*   **Tree Structure**: Represents the robot as a tree, with a single root link.
+*   **ROS-centric**: Tightly integrated with ROS tools and concepts (e.g., `robot_state_publisher`).
+*   **Limited Environment**: Does not natively support describing complex environments with multiple static and dynamic objects or environmental parameters like gravity.
+
+```xml
+<!-- URDF Snippet -->
+<robot name="simple_robot">
+  <link name="base_link">
+    <visual><geometry><box size="0.1 0.1 0.1"/></geometry></visual>
+  </link>
+  <joint name="fixed_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+</robot>
+```
+
+## SDF (Simulation Description Format)
+
+SDF is a more comprehensive XML format designed specifically for describing objects and environments in physics simulators like Gazebo. It can describe everything from simple objects to complex robots, sensors, and entire worlds, including environmental parameters.
+
+### Key Characteristics of SDF:
+
+*   **Full World Description**: Can describe multiple robots, static objects, sensors, lights, and environmental properties within a single file.
+*   **Graph Structure**: Supports arbitrary graph structures, allowing for more complex relationships between objects.
+*   **Simulator-centric**: Designed for full physics simulation and rendering in Gazebo.
+*   **Extensible**: More extensible than URDF, with richer features for describing interactions and behaviors in a simulation.
+
+```xml
+<!-- SDF Snippet -->
+<sdf version="1.6">
+  <world name="my_world">
+    <gravity>0 0 -9.8</gravity>
+    <model name="box">
+      <link name="box_link">
+        <visual><geometry><box><size>0.1 0.1 0.1</size></box></geometry></visual>
+        <collision><geometry><box><size>0.1 0.1 0.1</size></box></geometry></collision>
+      </link>
+    </model>
+  </world>
+</sdf>
+```
+
+## When to Use Which?
+
+*   **Use URDF**: When you need to define the kinematic and dynamic properties of a single robot for ROS tools and algorithms (e.g., motion planning, inverse kinematics).
+*   **Use SDF**: When you need to describe a complete simulation environment, including multiple robots, static objects, sensors, and environmental settings in Gazebo.
+
+Often, you will see URDF files converted to SDF for use in Gazebo. ROS tools can take a URDF and generate a compatible SDF for the simulator, leveraging the strengths of both formats.

@@ -1,0 +1,143 @@
+---
+title: Bridging Python Agents to ROS Controllers
+---
+
+In modern robotics, the "brain" of a robot—often a complex AI or machine learning model—is typically developed in Python. However, the robot's "body"—its motors, sensors, and low-level controllers—runs on the robust, real-time ROS 2 framework. The critical challenge is making them talk to each other. This chapter explains how to build a "bridge" using `rclpy`, the official ROS 2 Python client library, to connect your intelligent Python agent to the ROS 2 world.
+
+## The "Bridge" Node Pattern
+
+You should not try to force your entire AI agent code into the ROS 2 node structure. A cleaner, more modular approach is the **Bridge Pattern**. You create a special ROS 2 node that serves as a dedicated translator between your Python agent's world and the ROS 2 ecosystem.
+
+*   **Your Python Agent:** This is your "pure" Python code. It could be a TensorFlow model, a LangChain agent, or any other complex logic. It should not contain any ROS-specific code. It makes decisions and has a simple interface, like `agent.get_next_action()` or `agent.process_sensor_data()`.
+*   **The Bridge Node:** This is a standard `rclpy` node. Its sole job is to communicate with the rest of the ROS 2 system (subscribing to sensor topics, publishing motor commands) and expose a simple, non-ROS interface to your Python agent.
+
+This separation keeps your AI logic clean and testable independently from the robot's hardware and middleware.
+
+## Designing the Communication Flow
+
+### 1. From ROS 2 to the Python Agent (Sensing)
+
+Your agent needs information from the robot's sensors to make decisions. The bridge node will subscribe to the relevant ROS 2 topics and pass the data to the agent.
+
+1.  **Bridge Subscribes:** The bridge node subscribes to topics like `/odom` (for position), `/scan` (for lidar), or `/camera/image_raw` (for vision).
+2.  **Data is Passed:** When the bridge's subscriber callback receives a message, it translates it from a ROS message type into a simple Python data type (like a NumPy array or a dictionary) and passes it to the agent. This can be done via a direct method call, a shared object, or a thread-safe queue.
+
+### 2. From the Python Agent to ROS 2 (Acting)
+
+When your agent decides to act, it needs to send a command to the robot's controllers. The bridge node facilitates this by publishing to ROS 2 topics or calling ROS 2 services.
+
+1.  **Agent Issues Command:** The agent calls a simple method on the bridge, for example, `bridge.move_forward(0.5)`.
+2.  **Bridge Publishes:** The bridge node takes this simple command and translates it into a ROS 2 message (like `Twist` for movement). It then publishes this message to the appropriate ROS 2 topic, such as `/cmd_vel`.
+
+## Example: A Simple Agent and Bridge
+
+Let's build a simple agent that reads the robot's position (`odom`) and tells it to spin in a circle.
+
+#### The Agent (agent.py - Not a ROS Node)
+This is a plain Python class. It knows nothing about ROS.
+
+```python
+class SimpleSpinnerAgent:
+    def __init__(self):
+        self.current_position = None
+        self.turn_command_issued = False
+
+    def update_position(self, x, y, theta):
+        self.current_position = {'x': x, 'y': y, 'theta': theta}
+        print(f"Agent received position update: {self.current_position}")
+
+    def decide_action(self):
+        # A very simple decision: if we have a position, issue a turn command once.
+        if self.current_position and not self.turn_command_issued:
+            self.turn_command_issued = True
+            # Return a simple command dictionary
+            return {'linear_x': 0.0, 'angular_z': 0.5} 
+        return None
+```
+
+#### The Bridge (bridge_node.py - A ROS 2 Node)
+This node connects our agent to the ROS 2 graph. It runs the ROS communication in a separate thread to avoid blocking the agent's logic.
+
+```python
+import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist
+import threading
+import time
+
+# Assume agent.py is in the same directory
+from agent import SimpleSpinnerAgent
+
+class AgentBridgeNode(Node):
+    def __init__(self, agent):
+        super().__init__('agent_bridge_node')
+        self.agent = agent
+
+        # 1. Subscribe to sensor data for the agent
+        self.odom_subscriber = self.create_subscription(
+            Odometry,
+            '/odom',
+            self.odom_callback,
+            10)
+        
+        # 2. Create a publisher to send commands from the agent
+        self.cmd_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        
+        self.get_logger().info("Agent Bridge Node has been started.")
+
+    def odom_callback(self, msg: Odometry):
+        # Extract relevant data and pass it to the agent
+        position = msg.pose.pose.position
+        orientation_q = msg.pose.pose.orientation
+        # A simple conversion from quaternion to a yaw angle (theta) would go here
+        theta = 0.0 # Placeholder for yaw calculation
+        self.agent.update_position(position.x, position.y, theta)
+
+    def execute_command(self, command_dict):
+        if command_dict:
+            msg = Twist()
+            msg.linear.x = command_dict.get('linear_x', 0.0)
+            msg.angular.z = command_dict.get('angular_z', 0.0)
+            self.cmd_publisher.publish(msg)
+            self.get_logger().info(f"Published command: linear={msg.linear.x}, angular={msg.angular.z}")
+
+
+def ros_spinner(node):
+    rclpy.spin(node)
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    # Create the agent and the bridge node
+    my_agent = SimpleSpinnerAgent()
+    bridge_node = AgentBridgeNode(my_agent)
+
+    # Run rclpy.spin in a separate thread
+    ros_thread = threading.Thread(target=ros_spinner, args=(bridge_node,), daemon=True)
+    ros_thread.start()
+
+    # Main agent loop
+    try:
+        while rclpy.ok():
+            command = my_agent.decide_action()
+            if command:
+                bridge_node.execute_command(command)
+            time.sleep(1) # Agent thinks at 1 Hz
+    except KeyboardInterrupt:
+        pass
+    finally:
+        bridge_node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+### Key Concepts in the Example:
+
+1.  **Separation of Concerns:** `agent.py` contains only decision-making logic. `bridge_node.py` contains only ROS 2 communication logic.
+2.  **Threading:** `rclpy.spin()` is blocking. It takes over the thread to process ROS 2 callbacks (like `odom_callback`). By running it in a separate thread, we free up the main thread to run our agent's own logic loop (`my_agent.decide_action()`). This is a fundamental pattern for integrating external processes with ROS.
+3.  **Clear Interface:** The agent and bridge communicate through simple method calls (`update_position`, `execute_command`) and basic Python data types (dictionaries), not complex ROS messages.
+
+This bridge pattern is a powerful and scalable way to integrate your sophisticated Python-based AI systems with any robot running ROS 2.

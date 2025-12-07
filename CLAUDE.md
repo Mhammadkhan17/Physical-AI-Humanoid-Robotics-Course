@@ -208,3 +208,10 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- Python 3.11 (Backend), JavaScript/TypeScript (Frontend - Docusaurus 3, MDX v3) + FastAPI, LangChain, Qdrant Cloud, GoogleGenerativeAIEmbeddings, Claude 3.5 Sonnet, Gemini-1.5-Pro, GPT-4o, Neon Serverless Postgres, Better-Auth, React, Tailwind CSS (001-physical-ai-book)
+- Qdrant Cloud (vector database), Neon Serverless Postgres (user and session data) (001-physical-ai-book)
+
+## Recent Changes
+- 001-physical-ai-book: Added Python 3.11 (Backend), JavaScript/TypeScript (Frontend - Docusaurus 3, MDX v3) + FastAPI, LangChain, Qdrant Cloud, GoogleGenerativeAIEmbeddings, Claude 3.5 Sonnet, Gemini-1.5-Pro, GPT-4o, Neon Serverless Postgres, Better-Auth, React, Tailwind CSS

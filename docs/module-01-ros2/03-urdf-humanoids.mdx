@@ -1,0 +1,63 @@
+---
+id: urdf-humanoids
+title: URDF for Humanoids
+slug: /module-01-ros2/03-urdf-humanoids
+---
+
+To effectively simulate and control humanoid robots, we need a standardized way to describe their physical structure. This is where URDF (Unified Robot Description Format) comes in. In this chapter, we will explore URDF and its application in defining humanoid robots.
+
+## What is URDF?
+
+URDF is an XML format used in ROS to describe all aspects of a robot. It allows you to define the robot's kinematics (joints and links), collision properties, visual appearance, and even basic inertial properties. This description is crucial for both simulation environments (like Gazebo) and motion planning algorithms.
+
+### Key Elements of URDF:
+
+*   **Links**: Represent the rigid bodies of the robot (e.g., torso, upper arm, forearm).
+*   **Joints**: Connect two links and define their relative motion (e.g., revolute, prismatic, fixed).
+*   **Collision**: Defines the geometric shapes used for collision detection.
+*   **Visual**: Describes the visual appearance of the links (e.g., mesh, color).
+*   **Inertial**: Specifies mass and inertia tensors for dynamic simulation.
+
+## Humanoid Robot Structure in URDF
+
+Humanoid robots have a complex kinematic structure, mimicking the human body. A typical humanoid URDF would define:
+
+*   A central **torso** link.
+*   Two **leg chains** (hips, thighs, calves, feet) with multiple revolute joints for walking and balance.
+*   Two **arm chains** (shoulders, upper arms, forearms, wrists, hands) with revolute joints for manipulation.
+*   A **head** link with joints for gaze control.
+
+```xml
+<!-- Example: Simplified URDF for a humanoid arm segment -->
+<robot name="humanoid_arm">
+  <link name="shoulder">
+    <!-- visual, collision, inertial properties -->
+  </link>
+
+  <joint name="shoulder_joint" type="revolute">
+    <parent link="torso"/>
+    <child link="shoulder"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="100" velocity="10"/>
+  </joint>
+
+  <link name="upper_arm">
+    <!-- visual, collision, inertial properties -->
+  </link>
+
+  <joint name="elbow_joint" type="revolute">
+    <parent link="shoulder"/>
+    <child link="upper_arm"/>
+    <origin xyz="0.2 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="100" velocity="10"/>
+  </joint>
+</robot>
+```
+
+### Visualizing URDF
+
+Tools like `rviz` in ROS allow you to visualize your robot's URDF model, ensuring that the joints and links are defined correctly and the robot appears as expected.
+
+Understanding URDF is fundamental for creating accurate digital twins of humanoid robots, which we will use extensively in simulation.
