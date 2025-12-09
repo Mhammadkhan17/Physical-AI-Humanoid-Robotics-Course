@@ -4,21 +4,21 @@ from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 from qdrant_client.http.exceptions import UnexpectedResponse, ResponseHandlingException
-from langchain_community.vectorstores import Qdrant
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_qdrant import QdrantVectorStore # Use the correct class
+from langchain_community.embeddings import FastEmbedEmbeddings # Changed embedding import
 from dotenv import load_dotenv
 from pathlib import Path
-import time
+import time # For potential delays
 
 # Load environment variables
 script_dir = Path(__file__).parent
-dotenv_path = script_dir.parent / '.env'
+dotenv_path = script_dir.parent / '.env' # Assumes .env is in the parent of current script's dir (backend)
 load_dotenv(dotenv_path=dotenv_path)
 
 QDRANT_HOST = os.getenv("QDRANT_HOST")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 COLLECTION_NAME = "physical_ai_textbook"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # Ensure this is read for embeddings
+# GEMINI_API_KEY is no longer needed for embeddings, removed its loading and related checks.
 
 # --- Step 1: Verify Qdrant Connection ---
 def verify_qdrant_connection(client: QdrantClient):
@@ -52,7 +52,7 @@ def ensure_qdrant_collection(client: QdrantClient):
             print(f"Collection '{COLLECTION_NAME}' not found. Creating new collection...")
             client.create_collection(
                 collection_name=COLLECTION_NAME,
-                vectors_config=VectorParams(size=3072, distance=Distance.COSINE),
+                vectors_config=VectorParams(size=1024, distance=Distance.COSINE), # Changed dimension to 1024
             )
             print(f"Collection '{COLLECTION_NAME}' created.")
         else:
@@ -73,7 +73,7 @@ def ensure_qdrant_collection(client: QdrantClient):
         return False
 
 # --- Main Ingestion Logic ---
-def ingest_documents(content_path: str = "website/docs"):
+def ingest_documents(content_path: str = "../website/docs"):
     print(f"Starting ingestion process from {content_path}...")
 
     # Validate Qdrant config
@@ -124,33 +124,23 @@ def ingest_documents(content_path: str = "website/docs"):
     texts = text_splitter.split_documents(documents)
     print(f"Split into {len(texts)} chunks.")
 
-    # 5. Initializing GoogleGenerativeAIEmbeddings
-    print("\nStep 5: Initializing GoogleGenerativeAIEmbeddings...")
-    if not GEMINI_API_KEY:
-        print("Error: GEMINI_API_KEY environment variable not set in backend/.env file. Exiting.")
-        return
+    # 5. Initializing FastEmbedEmbeddings
+    print("\nStep 5: Initializing FastEmbedEmbeddings...")
+    # No API key needed for FastEmbed local models
     try:
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GEMINI_API_KEY)
-        # # Debugging: Get dimension of the embedding model
-        # dummy_embedding = embeddings.embed_query("test")
-        # actual_dimension = len(dummy_embedding)
-        # print(f"DEBUG: GoogleGenerativeAIEmbeddings(models/embedding-001) produces vectors of dimension: {actual_dimension}")
-        # if actual_dimension != 768: # Or whatever the expected Qdrant dim is
-        #      print(f"WARNING: Dimension mismatch detected between Qdrant config (768) and actual embedding model ({actual_dimension}).")
-        #      print("You may need to update the VectorParams size in ingest.py or use a different embedding model.")
-
+        embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-large-en-v1.5") # Use FastEmbed
     except Exception as e:
-        print(f"Failed to initialize GoogleGenerativeAIEmbeddings: {e}. Ensure GEMINI_API_KEY is correct. Exiting.")
+        print(f"Failed to initialize FastEmbedEmbeddings: {e}. Exiting.")
         return
 
     # Upload documents to Qdrant
     print(f"\nStep 6: Creating embeddings and upserting {len(texts)} documents to Qdrant collection '{COLLECTION_NAME}'...")
     try:
         # Initialize Qdrant vectorstore with existing client
-        qdrant_vectorstore = Qdrant(
+        qdrant_vectorstore = QdrantVectorStore(
             client=client,
             collection_name=COLLECTION_NAME,
-            embeddings=embeddings,
+            embedding=embeddings,
         )
         # Add documents to the collection
         qdrant_vectorstore.add_documents(texts)

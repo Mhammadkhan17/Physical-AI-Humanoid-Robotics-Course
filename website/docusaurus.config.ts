@@ -15,7 +15,7 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://Mhammadkhan17.github.io',
+  url: 'https://mhammadkhan17.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/Physical-AI-Humanoid-Robotics-Course/', // Trailing slash is important for GitHub Pages
@@ -25,7 +25,7 @@ const config: Config = {
   organizationName: 'Mhammadkhan17', // Your GitHub org/user name.
   projectName: 'Physical-AI-Humanoid-Robotics-Course', // Your repo name.
   deploymentBranch: 'gh-pages', // The branch Docusaurus should push the build output to
-
+  trailingSlash: false,
   onBrokenLinks: 'throw',
 
   // Even if you don't use internationalization, you can use this field to set
@@ -45,7 +45,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course.git',
         },
         blog: {
           showReadingTime: true,

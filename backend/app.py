@@ -205,6 +205,8 @@ async def translate_chapter(request: TranslateRequest, db: Session = Depends(get
     return {"translated_chapter_text": translated_text}
 
 
+from backend.rag.chain import create_rag_chain
+
 class IngestRequest(BaseModel):
     url: str
 
@@ -219,12 +221,17 @@ async def ingest_document(request: IngestRequest):
 
 @app.post("/chat")
 async def chat_with_rag(request: ChatRequest):
-    # Placeholder for RAG chat logic
-    if request.selected_text:
-        response = f"Chat response based on selected text: '{request.selected_text}' and message: '{request.message}'"
-    else:
-        response = f"Chat response based on message: '{request.message}'"
-    return {"response": response}
+    try:
+        # Create the RAG chain, passing the selected_text if available
+        rag_chain = create_rag_chain(selected_text=request.selected_text)
+        
+        # Invoke the chain with the user's message
+        response = rag_chain.invoke(request.message)
+        
+        return {"response": response}
+    except Exception as e:
+        # Handle exceptions from the RAG chain (e.g., if the LLM is still over quota)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 async def read_root():

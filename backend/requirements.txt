@@ -1,9 +1,9 @@
-fastapi==0.104.1
-uvicorn==0.24.0.post1
-psycopg2-binary==2.9.9
-SQLAlchemy==2.0.23
-python-dotenv==1.0.0
-google-generativeai==0.3.1 # Or openai, depending on model choice
+fastapi
+uvicorn
+psycopg2-binary
+SQLAlchemy
+python-dotenv
+google-generativeai
 langchain
 langchain-community
 qdrant-client
@@ -11,3 +11,7 @@ langchain-google-genai
 langchain-core
 lxml
 beautifulsoup4
+fastembed
+langchain-qdrant
+anyio
+google-ai-generativelanguage
