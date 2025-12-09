@@ -45,7 +45,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course.git',
+            'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course/tree/main/',
         },
         blog: {
           showReadingTime: true,
@@ -56,7 +56,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course/tree/main/website/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -86,11 +86,11 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Documentation', // Changed label from 'Tutorial' to 'Documentation'
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course', // Updated GitHub link
           label: 'GitHub',
           position: 'right',
         },
@@ -103,8 +103,8 @@ const config: Config = {
           title: 'Docs',
           items: [
             {
-              label: 'Tutorial',
-              to: '/docs/intro',
+              label: 'Modules Overview',
+              to: '/docs/module-1-robotic-nervous-system/ros-nodes-topics-services', // Link to first module
             },
           ],
         },
@@ -113,15 +113,15 @@ const config: Config = {
           items: [
             {
               label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              href: 'https://stackoverflow.com/questions/tagged/docusaurus', // Keep Docusaurus general links
             },
             {
               label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
+              href: 'https://discordapp.com/invite/docusaurus', // Keep Docusaurus general links
             },
             {
               label: 'X',
-              href: 'https://x.com/docusaurus',
+              href: 'https://x.com/docusaurus', // Keep Docusaurus general links
             },
           ],
         },
@@ -134,12 +134,12 @@ const config: Config = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course', // Updated GitHub link
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Physical AI & Humanoid Robotics. Built with Docusaurus.`, // Update copyright
     },
     prism: {
       theme: prismThemes.github,
