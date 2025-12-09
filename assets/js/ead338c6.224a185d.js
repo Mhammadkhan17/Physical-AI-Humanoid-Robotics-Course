@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkwebsite=globalThis.webpackChunkwebsite||[]).push([[64],{8667:e=>{e.exports=JSON.parse('{"metadata":{"permalink":"/Physical-AI-Humanoid-Robotics-Course/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":4,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
