@@ -34,13 +34,18 @@ const SignupPage: React.FC = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
       if (response.ok) {
+        const data = await response.json();
         setMessage('Registration successful! Please log in.');
         history.push(loginUrl);
       } else {
-        setError(data.detail || 'Registration failed.');
+        const errorText = await response.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          setError(errorJson.detail || 'Registration failed.');
+        } catch {
+          setError(response.statusText || 'Registration failed.');
+        }
       }
     } catch (err) {
       console.error('Registration error:', err);

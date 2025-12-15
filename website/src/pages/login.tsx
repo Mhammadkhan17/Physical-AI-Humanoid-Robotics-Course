@@ -52,16 +52,21 @@ function LoginPage(): JSX.Element {
         timeout
       ]) as Response;
 
-
-      const data = await response.json();
-
       if (response.ok) {
+        const data = await response.json();
         if (auth) {
           auth.login(data.access_token, data.user);
         }
         window.location.href = baseUrl;
       } else {
-        setError(data.detail || 'Login failed.');
+        // Handle non-JSON error responses gracefully
+        const errorText = await response.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          setError(errorJson.detail || 'Login failed.');
+        } catch {
+          setError(response.statusText || 'Login failed.');
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Network error or server unavailable. Please ensure the backend is running.');
