@@ -3,15 +3,18 @@ uvicorn
 psycopg2-binary
 SQLAlchemy
 python-dotenv
-google-generativeai
 langchain
 langchain-community
 qdrant-client
-langchain-google-genai
-langchain-core
+openai
+openai-agents
+langchain-openai
+langchain-core==1.1.1 # Updated to compatible version
 lxml
 beautifulsoup4
 fastembed
 langchain-qdrant
 anyio
-google-ai-generativelanguage
+passlib[bcrypt,argon2]
+argon2-cffi
+python-jose[cryptography]

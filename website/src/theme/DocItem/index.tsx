@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DocItem from '@theme-original/DocItem';
 import ChapterProgress from '@site/src/components/ChapterProgress';
 import { useAuth } from '@site/src/contexts/AuthContext';
 import { useHistory } from '@docusaurus/router';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ReactMarkdown from 'react-markdown'; // Import ReactMarkdown
+import remarkGfm from 'remark-gfm'; // Import remarkGfm
+import rehypeRaw from 'rehype-raw'; // Import rehypeRaw
+import { useSelectedText } from '@site/src/contexts/SelectedTextContext'; // Import useSelectedText
+import { useChatbotVisibility } from '@site/src/contexts/ChatbotVisibilityContext'; // Import useChatbotVisibility
 
 export default function DocItemWrapper(props) {
   const [personalizedContent, setPersonalizedContent] = useState<string | null>(null);
@@ -12,48 +18,142 @@ export default function DocItemWrapper(props) {
   const [isLoadingTranslate, setIsLoadingTranslate] = useState(false);
   const [errorTranslate, setErrorTranslate] = useState<string | null>(null);
   const [showTranslated, setShowTranslated] = useState(false);
+  const [hasProfile, setHasProfile] = useState<boolean>(false); // New state for profile
+  const [showAskAiButton, setShowAskAiButton] = useState(false); // State for Ask AI button visibility
+  const [askAiButtonPosition, setAskAiButtonPosition] = useState({ x: 0, y: 0 }); // State for Ask AI button position
 
-  const { isAuthenticated, loading } = useAuth();
+  const authContext = useAuth(); // Get the context object
+  console.log('DocItemWrapper useAuth() result:', authContext); // Log it for debugging
+  const { isAuthenticated, loading, token, user } = authContext;
+  const { selectedText, setSelectedText, setChapterId } = useSelectedText();
+  const { setIsOpen: setChatbotOpen } = useChatbotVisibility();
   const history = useHistory();
+  const baseUrl = useBaseUrl('/login');
+  const quizUrl = useBaseUrl('/quiz');
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  // Redirect unauthenticated users from protected chapters
-  /*
+  // Redirect unauthenticated users
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      // For demonstration, let's protect all chapters for now.
-      // In a real application, you'd have a list of protected chapter IDs.
-      if (props.content.metadata.id) { // Assuming all chapters require authentication
-        history.push('/login');
-      }
+      // Append a reason to the URL for the login page to display a message
+      window.location.href = `${baseUrl}?reason=unauthorized_content`;
     }
-  }, [isAuthenticated, loading, props.content.metadata.id, history]);
-  */
+  }, [loading, isAuthenticated, baseUrl]);
 
-  const currentUserId = 1; // This should come from AuthContext in a real app
+  // If still loading or not authenticated, render a loading state to prevent flicker
+  if (loading || !isAuthenticated) {
+    return (
+      <div style={{ padding: '20px' }}>
+        <p>Redirecting to login...</p>
+      </div>
+    );
+  }
+
+  // Fetch user profile to check if quiz has been taken
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (isAuthenticated && token && user) {
+        try {
+          const response = await fetch('/api', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (response.ok) {
+            const userData = await response.json();
+            // Assuming the 'user' object from /users/me endpoint contains profile info
+            // or we might need a separate /profile endpoint
+            // For now, let's assume if user.profile exists or a specific field indicates it
+            if (userData && userData.profile) { // This will need adjustment based on actual /users/me response structure
+                setHasProfile(true);
+            } else {
+                setHasProfile(false);
+            }
+          } else {
+            console.error("Failed to fetch user profile:", response.status);
+            setHasProfile(false);
+          }
+        } catch (error) {
+          console.error("Network error fetching user profile:", error);
+          setHasProfile(false);
+        }
+      } else {
+        setHasProfile(false);
+      }
+    };
+    fetchProfile();
+  }, [isAuthenticated, token, user]);
+
+  // Capture selected text and show Ask AI button
+  useEffect(() => {
+    const handleMouseUp = (event: MouseEvent) => {
+      // Only process clicks inside the content area
+      if (contentRef.current && contentRef.current.contains(event.target as Node)) {
+        const selection = window.getSelection();
+        const selectedString = selection.toString().trim();
+
+        if (selectedString.length > 0) {
+          setSelectedText(selectedString);
+          setChapterId(props.content.metadata.id); // Set the chapter ID
+          const range = selection.getRangeAt(0);
+          const rect = range.getBoundingClientRect();
+          setAskAiButtonPosition({
+            x: rect.right + window.scrollX - 50,
+            y: rect.bottom + window.scrollY + 5,
+          });
+          setShowAskAiButton(true);
+        } else {
+          // If the click was inside but resulted in an empty selection, clear it
+          setSelectedText(null);
+          setChapterId(null); // Clear the chapter ID
+          setShowAskAiButton(false);
+        }
+      } else {
+        // If the click was outside the content area, do nothing.
+        // This prevents clearing the selection when clicking in the chatbot.
+      }
+    };
+
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [setSelectedText]);
+
+  // Hide Ask AI button if selectedText is cleared (e.g., by chatbot)
+  useEffect(() => {
+    if (!selectedText) {
+      setShowAskAiButton(false);
+    }
+  }, [selectedText]);
+
 
   const handlePersonalize = async () => {
-    if (!currentUserId) {
+    if (!user || !token) {
       alert("Please log in to personalize content.");
+      return;
+    }
+    const chapterText = contentRef.current?.innerText || '';
+    if (!chapterText) {
+      alert("Could not find chapter content to personalize.");
       return;
     }
 
     setIsLoadingPersonalize(true);
     setErrorPersonalize(null);
     setPersonalizedContent(null);
-    setTranslatedContent(null); // Clear translation when personalizing
+    setTranslatedContent(null);
 
     try {
-      const chapterText = props.content.frontMatter.description || props.content.excerpt || ''; // Fallback to description or excerpt
-      const response = await fetch('https://your-deployed-backend-url.com/personalize', {
+      const response = await fetch('http://localhost:8000/personalize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': `Bearer YOUR_AUTH_TOKEN` // Example for authenticated requests
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          chapter_path: props.content.metadata.id,
           chapter_original_text: chapterText,
-          user_id: currentUserId,
+          user_id: user.id,
         }),
       });
 
@@ -61,7 +161,7 @@ export default function DocItemWrapper(props) {
 
       if (response.ok) {
         setPersonalizedContent(data.personalized_chapter_text);
-        setShowTranslated(false); // Ensure original/personalized is shown
+        setShowTranslated(false);
       } else {
         setErrorPersonalize(data.detail || 'Failed to personalize chapter.');
       }
@@ -74,33 +174,36 @@ export default function DocItemWrapper(props) {
   };
 
   const handleTranslate = async () => {
-    if (!currentUserId) {
+    if (!user || !token) {
       alert("Please log in to translate content.");
+      return;
+    }
+    const textToTranslate = personalizedContent || contentRef.current?.innerText || '';
+    if (!textToTranslate) {
+      alert("Could not find chapter content to translate.");
       return;
     }
 
     setIsLoadingTranslate(true);
     setErrorTranslate(null);
-    const textToTranslate = personalizedContent || props.content.frontMatter.description || props.content.excerpt || '';
 
     try {
-      const response = await fetch('https://your-deployed-backend-url.com/translate', {
+      const response = await fetch('http://localhost:8000/translate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          chapter_path: props.content.metadata.id,
-          chapter_original_text: textToTranslate,
-          user_id: currentUserId,
-          target_language: 'ur',
+          text: textToTranslate,
+          target_language: 'Urdu',
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setTranslatedContent(data.translated_chapter_text);
+        setTranslatedContent(data.translated_text);
         setShowTranslated(true);
       } else {
         setErrorTranslate(data.detail || 'Failed to translate chapter.');
@@ -117,10 +220,12 @@ export default function DocItemWrapper(props) {
     ? translatedContent
     : personalizedContent;
 
-  // If still loading auth state, render nothing or a loading spinner
-  if (loading) {
-    return <DocItem {...props} />; // Or a loading spinner
-  }
+  const handleAskAiClick = () => {
+    if (selectedText) {
+      setChatbotOpen(true); // Open the chatbot
+      setShowAskAiButton(false); // Hide the button
+    }
+  };
 
   return (
     <>
@@ -136,11 +241,20 @@ export default function DocItemWrapper(props) {
               borderRadius: '5px',
               cursor: 'pointer',
               marginRight: '10px',
+              fontFamily: 'Poppins, sans-serif' // Apply Poppins font
             }}
-            onClick={handlePersonalize}
-            disabled={isLoadingPersonalize}
+            onClick={
+              hasProfile
+                ? handlePersonalize
+                : () => history.push(quizUrl) // Redirect to quiz page
+            }
+            disabled={isLoadingPersonalize} // Only disable if personalizing
           >
-            {isLoadingPersonalize ? 'Personalizing...' : 'Personalize this chapter'}
+            {isLoadingPersonalize
+              ? 'Personalizing...'
+              : hasProfile
+              ? 'Personalize this chapter'
+              : 'Take Quiz to Personalize'}
           </button>
           <button
             style={{
@@ -150,11 +264,16 @@ export default function DocItemWrapper(props) {
               border: 'none',
               borderRadius: '5px',
               cursor: 'pointer',
+              fontFamily: 'Poppins, sans-serif' // Apply Poppins font
             }}
             onClick={handleTranslate}
             disabled={isLoadingTranslate}
           >
-            {isLoadingTranslate ? 'Translating...' : 'اردو میں پڑھیں / Read in Urdu'}
+            {isLoadingTranslate ? 'Translating...' : (
+              <>
+                <span style={{ fontFamily: 'Noto Nastaliq Urdu, serif' }}>اردو میں پڑھیں</span> / Read in Urdu
+              </>
+            )}
           </button>
         </div>
       )}
@@ -162,10 +281,52 @@ export default function DocItemWrapper(props) {
       {errorPersonalize && <p style={{ color: 'red' }}>Error: {errorPersonalize}</p>}
       {errorTranslate && <p style={{ color: 'red' }}>Error: {errorTranslate}</p>}
 
+      {isAuthenticated && personalizedContent && ( // Show message if personalized content is present
+        <div style={{
+            backgroundColor: 'var(--ifm-color-info-background)',
+            color: 'var(--ifm-color-info)',
+            padding: '10px',
+            borderRadius: '5px',
+            marginBottom: '15px'
+        }}>
+            This chapter has been personalized for your experience level.
+        </div>
+      )}
+
       {displayContent ? (
-        <div dangerouslySetInnerHTML={{ __html: displayContent }} />
+        <ReactMarkdown
+          className={showTranslated ? "urdu-translation-content" : undefined}
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
+        >
+          {displayContent}
+        </ReactMarkdown>
       ) : (
-        <DocItem {...props} />
+        <div ref={contentRef}>
+          <DocItem {...props} />
+        </div>
+      )}
+
+      {isAuthenticated && showAskAiButton && selectedText && (
+        <button
+          style={{
+            position: 'absolute',
+            left: askAiButtonPosition.x,
+            top: askAiButtonPosition.y,
+            backgroundColor: 'var(--ifm-color-primary)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            padding: '8px 12px',
+            cursor: 'pointer',
+            fontSize: '0.9em',
+            zIndex: 1001, // Ensure it's above other content
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+          }}
+          onClick={handleAskAiClick}
+        >
+          Ask AI about this
+        </button>
       )}
     </>
   );

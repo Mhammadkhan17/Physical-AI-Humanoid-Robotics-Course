@@ -25,7 +25,7 @@ const config: Config = {
   organizationName: 'Mhammadkhan17', // Your GitHub org/user name.
   projectName: 'Physical-AI-Humanoid-Robotics-Course', // Your repo name.
   deploymentBranch: 'gh-pages', // The branch Docusaurus should push the build output to
-  trailingSlash: false,
+  // trailingSlash: true,
   onBrokenLinks: 'throw',
 
   // Even if you don't use internationalization, you can use this field to set
@@ -79,7 +79,7 @@ const config: Config = {
       title: 'Physical AI & Humanoid Robotics',
       logo: {
         alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        src: 'img/artificial-brain-computer-svgrepo-com.svg',
       },
       items: [
         {
@@ -88,7 +88,6 @@ const config: Config = {
           position: 'left',
           label: 'Documentation', // Changed label from 'Tutorial' to 'Documentation'
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
           href: 'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course', // Updated GitHub link
           label: 'GitHub',
@@ -128,10 +127,6 @@ const config: Config = {
         {
           title: 'More',
           items: [
-            {
-              label: 'Blog',
-              to: '/blog',
-            },
             {
               label: 'GitHub',
               href: 'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course', // Updated GitHub link

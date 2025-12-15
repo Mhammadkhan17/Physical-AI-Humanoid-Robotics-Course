@@ -1,0 +1,279 @@
+(.venv) PS D:\book_hackathon\book>  uvicorn backend.app:app --reload --port 8000
+INFO:     Will watch for changes in these directories: ['D:\\book_hackathon\\book']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [7696] using StatReload
+D:\book_hackathon\book\.venv\Lib\site-packages\pydantic\_internal\_config.py:383: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+INFO:     Started server process [10360]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.   
+INFO:     127.0.0.1:51836 - "OPTIONS /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51836 - "POST /chat HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51845 - "POST /chat HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51919 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51919 - "POST /auth/login HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute   
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: SSL connection has been closed unexpectedly
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 403, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\applications.py", line 1139, in __call__
+    await super().__call__(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\applications.py", line 107, in __call__        
+    await self.middleware_stack(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__   
+    raise exc
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__   
+    await self.app(scope, receive, _send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\cors.py", line 93, in __call__      
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app    raise exc
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app    await app(scope, receive, sender)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app    raise exc
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app    await app(scope, receive, sender)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\routing.py", line 106, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\routing.py", line 430, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function  
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\backend\app.py", line 205, in login_for_access_token
+    db_user = db.query(DBUser).filter(DBUser.email == user.email).first()
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2759, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ~~~~~~~~~~~~~~~~~~~^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2857, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+        params,
+        ^^^^^^^
+        execution_options={"_sa_orm_load_options": self.load_options},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2351, in execute        
+    return self._execute_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        _add_event=_add_event,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2249, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<4 lines>...
+        conn,
+        ^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\orm\context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+        statement, params or {}, execution_options=execution_options
+    )
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute        
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute   
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) SSL connection has been closed unexpectedly        
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.hashed_password AS users_hashed_password   
+FROM users
+WHERE users.email = %(email_1)s
+ LIMIT %(param_1)s]
+[parameters: {'email_1': 'testemai1@mymail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     127.0.0.1:52006 - "OPTIONS /auth/register HTTP/1.1" 200 OK
+(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+INFO:     127.0.0.1:52006 - "POST /auth/register HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 403, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\applications.py", line 1139, in __call__
+    await super().__call__(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\applications.py", line 107, in __call__        
+    await self.middleware_stack(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__   
+    raise exc
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__   
+    await self.app(scope, receive, _send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\cors.py", line 93, in __call__      
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app    raise exc
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app    await app(scope, receive, sender)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app    raise exc
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app    await app(scope, receive, sender)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\routing.py", line 106, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\routing.py", line 430, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function  
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\backend\app.py", line 196, in register_user
+    hashed_password = get_password_hash(user.password)
+  File "D:\book_hackathon\book\backend\app.py", line 115, in get_password_hash
+    return pwd_context.hash(password)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\context.py", line 2258, in hash
+    return record.hash(secret, **kwds)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\utils\handlers.py", line 779, in hash
+    self.checksum = self._calc_checksum(secret)
+                    ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 591, in _calc_checksum 
+    self._stub_requires_backend()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\utils\handlers.py", line 2254, in _stub_requires_backend
+    cls.set_backend()
+    ~~~~~~~~~~~~~~~^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\utils\handlers.py", line 2156, in set_backend    
+    return owner.set_backend(name, dryrun=dryrun)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\utils\handlers.py", line 2163, in set_backend    
+    return cls.set_backend(name, dryrun=dryrun)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\utils\handlers.py", line 2188, in set_backend    
+    cls._set_backend(name, dryrun)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\utils\handlers.py", line 2311, in _set_backend   
+    super(SubclassBackendMixin, cls)._set_backend(name, dryrun)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\utils\handlers.py", line 2224, in _set_backend   
+    ok = loader(**kwds)
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 626, in _load_backend_mixin
+    return mixin_cls._finalize_backend_mixin(name, dryrun)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 421, in _finalize_backend_mixin
+    if detect_wrap_bug(IDENT_2A):
+       ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 380, in detect_wrap_bug    if verify(secret, bug_hash):
+       ~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\utils\handlers.py", line 792, in verify
+    return consteq(self._calc_checksum(secret), chk)
+                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\book_hackathon\book\.venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 655, in _calc_checksum 
+    hash = _bcrypt.hashpw(secret, config)
+ValueError: password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])sssssssss

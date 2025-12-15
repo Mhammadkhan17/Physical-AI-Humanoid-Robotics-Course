@@ -73,7 +73,11 @@ def ensure_qdrant_collection(client: QdrantClient):
         return False
 
 # --- Main Ingestion Logic ---
-def ingest_documents(content_path: str = "../website/docs"):
+def ingest_documents():
+    # Construct path to content directory relative to this script's location
+    # script_dir -> backend/rag/
+    # content_path -> ../../website/docs (relative to script_dir)
+    content_path = Path(__file__).parent.parent.parent / "website" / "docs"
     print(f"Starting ingestion process from {content_path}...")
 
     # Validate Qdrant config

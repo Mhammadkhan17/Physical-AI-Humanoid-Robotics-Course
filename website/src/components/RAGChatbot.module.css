@@ -5,69 +5,206 @@
   z-index: 1000;
 }
 
-.chatButton {
-  background-color: #007bff;
+.chatToggleButton {
+  background-color: var(--ifm-color-primary);
   color: white;
-  padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1em;
   cursor: pointer;
-  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .chatWindow {
-  background-color: white;
-  border: 1px solid #ccc;
+  width: 370px;
+  height: 500px;
+  max-height: 80vh;
+  background-color: var(--ifm-background-color);
   border-radius: 8px;
-  width: 300px;
-  height: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif; /* Apply Poppins font */
+  backdrop-filter: blur(10px);
 }
 
 .chatHeader {
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  font-weight: bold;
+  background-color: var(--ifm-card-background-color);
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--ifm-color-gray-300);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.chatHeader h3 {
+  margin: 0;
+  font-size: 1.1em;
+}
+
 .closeButton {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 1.5em;
   cursor: pointer;
+  color: var(--ifm-color-gray-600);
 }
 
-.chatBody {
+.messagesDisplay {
   flex-grow: 1;
-  padding: 10px;
+  padding: 15px;
   overflow-y: auto;
-  border-bottom: 1px solid #eee;
-}
-
-.chatInputContainer {
   display: flex;
-  padding: 10px;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.chatInput {
+.chatMessage {
+  padding: 8px 12px;
+  border-radius: 15px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 0.9em;
+  line-height: 1.4;
+  background-color: seagreen;
+}
+
+.userMessage {
+  background-color: var(--ifm-color-primary);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+
+.botMessage {
+  background-color: var(--ifm-card-background-color);
+  color: var(--ifm-font-color-base);
+  align-self: flex-start;
+  border: 1px solid var(--ifm-color-gray-300);
+  border-bottom-left-radius: 2px;
+}
+
+.inputForm {
+  display: flex;
+  border-top: 1px solid var(--ifm-color-gray-300);
+  padding: 10px;
+  background-color: var(--ifm-card-background-color);
+}
+
+.inputField {
   flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid var(--ifm-color-gray-300);
+  border-radius: 20px;
+  padding: 10px 15px;
   margin-right: 10px;
+  font-size: 1em;
+  outline: none;
 }
 
 .sendButton {
-  background-color: #28a745;
+  background-color: var(--ifm-color-primary);
   color: white;
-  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 20px;
+  padding: 10px 15px;
   cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.sendButton:hover {
+  background-color: var(--ifm-color-primary-dark);
+}
+
+.sendButton:disabled {
+  background-color: var(--ifm-color-gray-500);
+  cursor: not-allowed;
+}
+
+/* Streaming animation for the bot message */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+.streaming {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Styles for selected text context */
+.selectedContext {
+  background-color: var(--ifm-color-info-background);
+  border: 1px solid var(--ifm-color-info);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  color: var(--ifm-color-info-dark);
+  position: relative;
+}
+
+.selectedContext p {
+  margin: 0 0 5px 0;
+}
+
+.selectedContextText {
+  max-height: 80px;
+  overflow-y: auto;
+  white-space: pre-wrap; /* Preserve formatting if any */
+  word-break: break-word;
+  background-color: var(--ifm-background-color);
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid var(--ifm-color-gray-300);
+}
+
+.clearContextButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  color: var(--ifm-color-danger);
+  cursor: pointer;
+  font-size: 0.8em;
+  padding: 3px 5px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.clearContextButton:hover {
+  background-color: rgba(var(--ifm-color-danger-rgb), 0.1);
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+ 
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-left-color: var(--ifm-color-primary);
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+  margin: 5px; /* Adjust as needed */
 }

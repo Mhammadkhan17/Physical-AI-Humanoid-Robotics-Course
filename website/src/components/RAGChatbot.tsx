@@ -1,89 +1,168 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './RAGChatbot.module.css';
+import { useAuth } from '@site/src/contexts/AuthContext';
+import { useSelectedText } from '@site/src/contexts/SelectedTextContext';
+import { useChatbotVisibility } from '@site/src/contexts/ChatbotVisibilityContext';
+import ReactMarkdown from 'react-markdown'; // Import ReactMarkdown
+import remarkGfm from 'remark-gfm'; // Import remarkGfm
+import rehypeRaw from 'rehype-raw'; // Import rehypeRaw
+
+type Message = {
+  text: string;
+  sender: 'user' | 'bot';
+};
 
 const RAGChatbot: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<string[]>([]);
+  const { isAuthenticated, token } = useAuth();
+  const { selectedText, setSelectedText, chapterId, setChapterId } = useSelectedText();
+  const { isOpen, setIsOpen } = useChatbotVisibility(); // Use useChatbotVisibility
+  const [input, setInput] = useState('');
+  const [chatHistory, setChatHistory] = useState<Message[]>([]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(scrollToBottom, [chatHistory]);
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
+    // Clear context when closing the chat
+    if (isOpen) {
+      setSelectedText(null);
+      setChapterId(null);
+    }
   };
 
   const handleSendMessage = async () => {
-    if (message.trim() === '') return;
+    if (input.trim() === '') return;
 
-    const userMessage = `You: ${message}`;
-    setChatHistory((prev) => [...prev, userMessage]);
+    const newUserMessage: Message = { text: input, sender: 'user' };
+    setChatHistory((prev) => [...prev, newUserMessage, { text: '', sender: 'bot' }]);
+    setInput('');
+    setIsStreaming(true);
 
-    // Placeholder for API call to backend /chat endpoint
     try {
-      const response = await fetch('http://127.0.0.1:8000/chat', {
+      const body: { message: string; selected_text?: string; chapter_id?: string } = { message: input };
+      if (selectedText && selectedText.trim().length > 0) {
+        body.selected_text = selectedText;
+        if (chapterId) {
+          body.chapter_id = chapterId;
+        }
+      }
+
+      console.log("Sending to backend:", body); // Log the request body
+
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ message: message }),
+        body: JSON.stringify(body),
       });
-      const data = await response.json();
-      setChatHistory((prev) => [...prev, `Bot: ${data.response}`]);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Backend validation error:', errorData.detail);
+        throw new Error(errorData.detail ? JSON.stringify(errorData.detail) : `HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value);
+        setChatHistory((prev) => {
+          const lastMessage = prev[prev.length - 1];
+          lastMessage.text += chunk;
+          return [...prev];
+        });
+      }
     } catch (error) {
       console.error('Error sending message:', error);
-      setChatHistory((prev) => [...prev, 'Bot: Error communicating with the chatbot.']);
+      setChatHistory((prev) => [
+        ...prev,
+        { text: 'Error communicating with the chatbot.', sender: 'bot' },
+      ]);
+    } finally {
+      setIsStreaming(false);
+      setSelectedText(null);
+      setChapterId(null); // Clear chapter context after sending
     }
-
-    setMessage('');
   };
 
-  // Selected text functionality (to be implemented more fully)
-  useEffect(() => {
-    const handleTextSelection = () => {
-      const selectedText = window.getSelection()?.toString();
-      if (selectedText) {
-        console.log('Selected Text:', selectedText);
-        // Here you would typically update the chat input or send it to the bot directly
-      }
-    };
-    document.addEventListener('mouseup', handleTextSelection);
-    return () => {
-      document.removeEventListener('mouseup', handleTextSelection);
-    };
-  }, []);
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className={styles.chatbotContainer}>
-      <button className={styles.chatButton} onClick={toggleChat}>
-        {isOpen ? 'Close Chat' : 'Open Chat'}
+      <button className={styles.chatToggleButton} onClick={toggleChat}>
+        {isOpen ? 'Close' : 'Chat'}
       </button>
 
       {isOpen && (
         <div className={styles.chatWindow}>
           <div className={styles.chatHeader}>
-            RAG Chatbot
-            <button className={styles.closeButton} onClick={toggleChat}>X</button>
+            <h3>RAG Chatbot</h3>
+            <button onClick={toggleChat} className={styles.closeButton}>×</button>
           </div>
-          <div className={styles.chatBody}>
-            {chatHistory.map((entry, index) => (
-              <p key={index}>{entry}</p>
+          <div className={styles.messagesDisplay}>
+            {selectedText && (
+              <div className={styles.selectedContext}>
+                <p><strong>Context from selection:</strong></p>
+                <p className={styles.selectedContextText}>{selectedText}</p>
+                <button className={styles.clearContextButton} onClick={() => setSelectedText(null)}>Clear Context</button>
+              </div>
+            )}
+            {chatHistory.map((msg, index) => (
+              <div
+                key={index}
+                className={`${styles.chatMessage} ${
+                  msg.sender === 'user' ? styles.userMessage : styles.botMessage
+                } ${isStreaming && index === chatHistory.length - 1 ? styles.streaming : ''}`}
+              >
+                {isStreaming && msg.sender === 'bot' && msg.text === '' ? (
+                  <div className={styles.spinner}></div>
+                ) : (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                    {msg.text}
+                  </ReactMarkdown>
+                )}
+              </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
-          <div className={styles.chatInputContainer}>
+          <form
+            className={styles.inputForm}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
+          >
             <input
               type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleSendMessage();
-                }
-              }}
-              placeholder="Ask me anything..."
-              className={styles.chatInput}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask a question..."
+              className={styles.inputField}
+              disabled={isStreaming}
             />
-            <button onClick={handleSendMessage} className={styles.sendButton}>
+            <button
+              type="button"
+              onClick={handleSendMessage}
+              className={styles.sendButton}
+              disabled={!input.trim() || !token || isStreaming}
+            >
               Send
             </button>
-          </div>
+          </form>
         </div>
       )}
     </div>

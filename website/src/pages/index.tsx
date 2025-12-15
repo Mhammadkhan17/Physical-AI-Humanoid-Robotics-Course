@@ -8,6 +8,11 @@ import Heading from '@theme/Heading';
 
 import styles from './index.module.css';
 
+import { useAuth } from '@site/src/contexts/AuthContext';
+import React, { useEffect } from 'react';
+import { useHistory } from '@docusaurus/router';
+import useBaseUrl from '@docusaurus/useBaseUrl'; // Import useBaseUrl
+
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
   return (
@@ -31,6 +36,7 @@ function HomepageHeader() {
 
 export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
+  
   return (
     <Layout
       title={`Hello from ${siteConfig.title}`}

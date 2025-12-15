@@ -1,0 +1,211 @@
+Card for login and signup [
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+export function CardDemo() {
+  return (
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Login to your account</CardTitle>
+        <CardDescription>
+          Enter your email below to login to your account
+        </CardDescription>
+        <CardAction>
+          <Button variant="link">Sign Up</Button>
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        <form>
+          <div className="flex flex-col gap-6">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <a
+                  href="#"
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </a>
+              </div>
+              <Input id="password" type="password" required />
+            </div>
+          </div>
+        </form>
+      </CardContent>
+      <CardFooter className="flex-col gap-2">
+        <Button type="submit" className="w-full">
+          Login
+        </Button>
+        <Button variant="outline" className="w-full">
+          Login with Google
+        </Button>
+      </CardFooter>
+    </Card>
+  )
+}
+]
+
+
+Rag chatbot Input [
+
+import { IconCheck, IconInfoCircle, IconPlus } from "@tabler/icons-react"
+import { ArrowUpIcon, Search } from "lucide-react"
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from "@/components/ui/input-group"
+import { Separator } from "@/components/ui/separator"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+export function InputGroupDemo() {
+  return (
+    <div className="grid w-full max-w-sm gap-6">
+      <InputGroup>
+        <InputGroupInput placeholder="Search..." />
+        <InputGroupAddon>
+          <Search />
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-end">12 results</InputGroupAddon>
+      </InputGroup>
+      <InputGroup>
+        <InputGroupInput placeholder="example.com" className="!pl-1" />
+        <InputGroupAddon>
+          <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-end">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <InputGroupButton className="rounded-full" size="icon-xs">
+                <IconInfoCircle />
+              </InputGroupButton>
+            </TooltipTrigger>
+            <TooltipContent>This is content in a tooltip.</TooltipContent>
+          </Tooltip>
+        </InputGroupAddon>
+      </InputGroup>
+      <InputGroup>
+        <InputGroupTextarea placeholder="Ask, Search or Chat..." />
+        <InputGroupAddon align="block-end">
+          <InputGroupButton
+            variant="outline"
+            className="rounded-full"
+            size="icon-xs"
+          >
+            <IconPlus />
+          </InputGroupButton>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <InputGroupButton variant="ghost">Auto</InputGroupButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              side="top"
+              align="start"
+              className="[--radius:0.95rem]"
+            >
+              <DropdownMenuItem>Auto</DropdownMenuItem>
+              <DropdownMenuItem>Agent</DropdownMenuItem>
+              <DropdownMenuItem>Manual</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <InputGroupText className="ml-auto">52% used</InputGroupText>
+          <Separator orientation="vertical" className="!h-4" />
+          <InputGroupButton
+            variant="default"
+            className="rounded-full"
+            size="icon-xs"
+            disabled
+          >
+            <ArrowUpIcon />
+            <span className="sr-only">Send</span>
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+      <InputGroup>
+        <InputGroupInput placeholder="@shadcn" />
+        <InputGroupAddon align="inline-end">
+          <div className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full">
+            <IconCheck className="size-3" />
+          </div>
+        </InputGroupAddon>
+      </InputGroup>
+    </div>
+  )
+}
+]
+
+
+spinner for the rag chatbot [
+
+import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
+
+export function SpinnerButton() {
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <Button disabled size="sm">
+        <Spinner />
+        Loading...
+      </Button>
+      <Button variant="outline" disabled size="sm">
+        <Spinner />
+        Please wait
+      </Button>
+      <Button variant="secondary" disabled size="sm">
+        <Spinner />
+        Processing
+      </Button>
+    </div>
+  )
+}
+]
+show skeleton instead of loading or redirecting to login page
+[
+    import { Skeleton } from "@/components/ui/skeleton"
+
+export function SkeletonDemo() {
+  return (
+    <div className="flex items-center space-x-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>
+  )
+}
+
+]

@@ -14,3 +14,6 @@ build/
 # Python compiled files
 __pycache__/
 *.pyc
+
+# Uvicorn temporary directory
+uvicorn/

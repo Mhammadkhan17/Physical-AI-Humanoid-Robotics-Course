@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@theme/Layout';
+import { useAuth } from '@site/src/contexts/AuthContext'; // Import useAuth
+import { useHistory } from '@docusaurus/router'; // Import useHistory
+import useBaseUrl from '@docusaurus/useBaseUrl'; // Import useBaseUrl
 
 const QuizPage: React.FC = () => {
+  const auth = useAuth();
+  const history = useHistory();
+  const loginUrl = useBaseUrl('/login');
+  const quizUrl = useBaseUrl('/quiz'); // Declare quizUrl for potential redirects later
+
   const [pythonExp, setPythonExp] = useState(0);
   const [rosExp, setRosExp] = useState(0);
   const [hasGpu, setHasGpu] = useState(false);
@@ -9,9 +17,26 @@ const QuizPage: React.FC = () => {
   const [hasRobotAccess, setHasRobotAccess] = useState(false);
   const [message, setMessage] = useState('');
 
+  // Protect the route
+  useEffect(() => {
+    if (!auth || auth.loading) {
+      // Still loading auth state
+      return;
+    }
+    if (!auth.isAuthenticated) {
+      // Not authenticated, redirect to login
+      window.location.href = loginUrl;
+    }
+  }, [auth, loginUrl]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('Submitting quiz...');
+
+    if (!auth || !auth.token || !auth.user) {
+      setMessage('Error: User not authenticated. Please log in.');
+      return;
+    }
 
     const quizAnswers = {
       python_experience: pythonExp,
@@ -19,16 +44,17 @@ const QuizPage: React.FC = () => {
       has_gpu: hasGpu,
       has_jetson: hasJetson,
       has_robot_access: hasRobotAccess,
+      // user_id is passed implicitly via the JWT token in the backend,
+      // but explicitly passing it here doesn't hurt and matches the Profile model.
+      user_id: auth.user.id,
     };
 
     try {
-      // This assumes the user is authenticated and better-auth provides a way to get a token or session
-      // For a real application, you'd get a session token from Better-Auth after login/registration
-      const response = await fetch('https://your-deployed-backend-url.com/profile/quiz', {
+      const response = await fetch('/api/profile/quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': `Bearer YOUR_AUTH_TOKEN` // Example for authenticated requests
+          'Authorization': `Bearer ${auth.token}`, // Add Authorization header
         },
         body: JSON.stringify(quizAnswers),
       });
@@ -36,8 +62,8 @@ const QuizPage: React.FC = () => {
       const data = await response.json();
       if (response.ok) {
         setMessage('Quiz submitted successfully!');
-        // Redirect to a profile page or home page after successful submission
-        // window.location.href = '/';
+        // Optionally redirect the user after submission
+        // history.push(quizUrl); // Redirect to quiz page or profile
       } else {
         setMessage(`Error: ${data.detail || 'Failed to submit quiz'}`);
       }
@@ -46,7 +72,21 @@ const QuizPage: React.FC = () => {
       setMessage('Network error or server unavailable.');
     }
   };
+  
+  // Show loading state while authentication is being checked
+  if (!auth || auth.loading) {
+    return (
+      <Layout title="Background Quiz" description="Answer a few questions to personalize your experience.">
+        <main style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+          <h1>Loading Quiz...</h1>
+          <p>Checking authentication status.</p>
+        </main>
+      </Layout>
+    );
+  }
 
+  // If not authenticated, the useEffect above will redirect.
+  // This render path is for authenticated users.
   return (
     <Layout title="Background Quiz" description="Answer a few questions to personalize your experience.">
       <main style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>

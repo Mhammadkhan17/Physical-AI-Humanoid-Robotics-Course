@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface AuthContextType {
-  user: any; // Replace 'any' with your actual User type if you have one
+  user: any;
+  token: string | null; // Add token to the type
   isAuthenticated: boolean;
   login: (token: string, userData: any) => void;
   logout: () => void;
@@ -12,17 +13,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
+  const [token, setToken] = useState<string | null>(null); // Add token state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // On mount, try to load user from local storage or check session
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      // Here you would typically validate the token with your backend
-      // For now, let's assume it's valid and fetch user data if available
+    const storedToken = localStorage.getItem('authToken');
+    if (storedToken) {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
+        setToken(storedToken); // Set token from storage
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
       }
@@ -30,9 +30,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(false);
   }, []);
 
-  const login = (token: string, userData: any) => {
-    localStorage.setItem('authToken', token);
+  const login = (newToken: string, userData: any) => {
+    localStorage.setItem('authToken', newToken);
     localStorage.setItem('user', JSON.stringify(userData));
+    setToken(newToken); // Set token state on login
     setUser(userData);
     setIsAuthenticated(true);
   };
@@ -40,12 +41,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    setToken(null); // Clear token state on logout
     setUser(null);
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
