@@ -15,10 +15,10 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://mhammadkhan17.github.io',
+  url: 'https://physical-ai-humanoid-robotics-course.vercel.app', // Update for Vercel
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/Physical-AI-Humanoid-Robotics-Course/', // Trailing slash is important for GitHub Pages
+  baseUrl: '/', // Change for Vercel deployment
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
