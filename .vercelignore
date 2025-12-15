@@ -1,2 +1,18 @@
-# Ignore the fastembed cache directory to reduce serverless function size
+# Ignore virtual environments
+.venv/
+venv/
+env/
+
+# Ignore Python cache
+**/__pycache__
+**/.cache
+
+# Ignore model caches from various libraries
 .fastembed/
+.huggingface/
+.cache/
+
+# Ignore local development files
+.env*
+local.db
+*.log
