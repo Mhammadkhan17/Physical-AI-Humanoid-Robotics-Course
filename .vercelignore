@@ -1,0 +1,2 @@
+# Ignore the fastembed cache directory to reduce serverless function size
+.fastembed/
