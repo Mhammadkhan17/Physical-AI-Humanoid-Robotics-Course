@@ -16,10 +16,4 @@ env/
 .env*
 local.db
 *.log
-
-# Ignore common non-runtime files within installed packages
-**/*/docs/
-**/*/tests/
-**/*/examples/
-**/*.md
-**/*.txt
+python-dotenv/
