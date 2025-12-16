@@ -4,7 +4,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI # Use ChatOpenAI for OpenRouter
 # from langchain_google_genai import ChatGoogleGenerativeAI # Removed
 
-from .retrieve import get_retriever # Assuming relative import structure
+from .gemini_retrieve import get_retriever # Assuming relative import structure
 import os
 from dotenv import load_dotenv # Added to load API keys
 from pathlib import Path # Added for dotenv path

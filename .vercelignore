@@ -17,3 +17,7 @@ env/
 local.db
 *.log
 python-dotenv/
+
+# Ignore old application files not needed for deployment
+backend/rag/ingest.py
+backend/rag/retrieve.py
