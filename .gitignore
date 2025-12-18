@@ -17,3 +17,9 @@ __pycache__/
 
 # Uvicorn temporary directory
 uvicorn/
+
+# Local and log files
+vercel_log*.txt
+backend/rag/ingest.py
+backend/rag/retrieve.py
+backend/requirements-ingest.txt
