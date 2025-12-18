@@ -54,7 +54,7 @@ export default function DocItemWrapper(props) {
     const fetchProfile = async () => {
       if (isAuthenticated && token && user) {
         try {
-          const response = await fetch('/api', {
+          const response = await fetch('/api/users/me', {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -145,7 +145,7 @@ export default function DocItemWrapper(props) {
     setTranslatedContent(null);
 
     try {
-      const response = await fetch('http://localhost:8000/personalize', {
+      const response = await fetch('/api/personalize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -188,7 +188,7 @@ export default function DocItemWrapper(props) {
     setErrorTranslate(null);
 
     try {
-      const response = await fetch('http://localhost:8000/translate', {
+      const response = await fetch('/api/translate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

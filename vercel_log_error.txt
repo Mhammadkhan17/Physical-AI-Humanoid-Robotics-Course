@@ -1,0 +1,13 @@
+Error importing backend/app.py:
+Traceback (most recent call last):
+File "/var/task/vc__handler__python.py", line 243, in <module>
+__vc_spec.loader.exec_module(__vc_module)
+File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+File "/var/task/backend/app.py", line 240, in <module>
+from backend.rag.chain import create_rag_chain, format_docs
+File "/var/task/backend/rag/chain.py", line 4, in <module>
+from langchain_openai import ChatOpenAI # Use ChatOpenAI for OpenRouter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'langchain_openai'
+Python process exited with exit status: 1. The logs above can help with debugging the issue.

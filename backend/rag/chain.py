@@ -1,18 +1,15 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain_openai import ChatOpenAI # Use ChatOpenAI for OpenRouter
-# from langchain_google_genai import ChatGoogleGenerativeAI # Removed
+from langchain_google_genai import ChatGoogleGenerativeAI # Use ChatGoogleGenerativeAI
 
 from .gemini_retrieve import get_retriever # Assuming relative import structure
 import os
 from dotenv import load_dotenv # Added to load API keys
 from pathlib import Path # Added for dotenv path
 
-# Load environment variables (same as retrieve.py and ingest.py)
-script_dir = Path(__file__).parent
-dotenv_path = script_dir.parent / '.env'
-load_dotenv(dotenv_path=dotenv_path)
+# Load environment variables
+load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # Load Gemini API Key
 
@@ -26,10 +23,9 @@ def create_rag_chain(selected_text: str = None, chapter_id: str = None):
     retriever = get_retriever()
     if not GEMINI_API_KEY:
         raise ValueError("GEMINI_API_KEY must be set in backend/.env file for the LLM.")
-    llm = ChatOpenAI(
+    llm = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
-        openai_api_key=GEMINI_API_KEY,
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        google_api_key=GEMINI_API_KEY,
         temperature=0.7
     )
     template = """You are an AI assistant for a textbook on Physical AI & Humanoid Robotics.
