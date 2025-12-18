@@ -3,7 +3,6 @@ uvicorn
 psycopg2-binary
 SQLAlchemy
 python-dotenv
-langchain-community
 qdrant-client
 google-generativeai
 langchain-google-genai

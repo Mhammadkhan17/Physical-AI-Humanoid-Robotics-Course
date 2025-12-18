@@ -4,8 +4,8 @@ venv/
 env/
 
 # Ignore Python cache
-**/__pycache__
-**/.cache
+__pycache__
+.cache
 
 # Ignore model caches from various libraries
 .fastembed/
@@ -19,5 +19,6 @@ local.db
 python-dotenv/
 
 # Ignore old application files not needed for deployment
-backend/rag/ingest.py
-backend/rag/retrieve.py
+ingest.py
+retrieve.py
+gemini_retrieve.py
