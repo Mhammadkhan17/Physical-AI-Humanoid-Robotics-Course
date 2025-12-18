@@ -15,7 +15,7 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://physical-ai-humanoid-robotics-course.vercel.app', // Update for Vercel
+  url: 'https://physical-ai-humanoid-robotics-cours-zeta.vercel.app/', // Update for Vercel
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/', // Change for Vercel deployment
@@ -70,6 +70,17 @@ const config: Config = {
   ],
 
   themeConfig: {
+    // Add dev server proxy configuration
+    devServer: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8000',
+          changeOrigin: true,
+          pathRewrite: { '^/api': '' },
+        },
+      },
+    },
+
     // Replace with your project's social card
     image: 'img/book_cover.png',
     colorMode: {
@@ -86,10 +97,10 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Documentation', // Changed label from 'Tutorial' to 'Documentation'
+          label: 'Documentation',
         },
         {
-          href: 'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course', // Updated GitHub link
+          href: 'https://github.com/Mhammadkhan17/Physical-AI-Humanoid-Robotics-Course',
           label: 'GitHub',
           position: 'right',
         },

@@ -42,7 +42,7 @@ function LoginPage(): JSX.Element {
 
       // Race the fetch request against the timeout
       const response = await Promise.race([
-        fetch('/api/auth/login', {
+        fetch('/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

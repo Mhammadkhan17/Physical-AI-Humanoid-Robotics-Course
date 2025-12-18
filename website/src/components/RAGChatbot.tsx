@@ -55,7 +55,7 @@ const RAGChatbot: React.FC = () => {
 
       console.log("Sending to backend:", body); // Log the request body
 
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
