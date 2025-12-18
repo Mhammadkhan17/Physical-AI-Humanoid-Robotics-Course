@@ -7,7 +7,7 @@ langchain-community
 qdrant-client
 google-generativeai
 langchain-google-genai
-langchain-core==0.1.29
+langchain-core==0.1.52
 langchain-qdrant
 anyio
 passlib[bcrypt,argon2]
