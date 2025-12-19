@@ -4,8 +4,8 @@
     {
       "src": "website/package.json",
       "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
+      "config": { 
+        "distDir": "build" 
       }
     },
     {
@@ -14,13 +14,8 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/backend/app.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/website/$1"
-    }
+    { "source": "/api/(.*)", "destination": "backend/app.py" },
+    { "source": "/auth/(.*)", "destination": "backend/app.py" },
+    { "source": "/(.*)", "destination": "/website/$1" }
   ]
 }

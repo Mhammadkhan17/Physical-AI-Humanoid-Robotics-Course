@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from dotenv import load_dotenv
 import os
 
-from rag.chain import create_rag_chain, format_docs
+from backend.rag.chain import create_rag_chain, format_docs
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -148,7 +148,8 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Allow your Docusaurus frontend
+    allow_origins=["http://localhost:3000",
+                   "https://physical-ai-humanoid-robotics-cours-zeta.vercel.app/"],  # Allow your Docusaurus frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -166,7 +167,7 @@ class QuizAnswers(BaseModel):
     has_jetson: bool
     has_robot_access: bool
 
-@app.post("/profile/quiz")
+@app.post("/auth/quiz")
 async def submit_quiz(answers: QuizAnswers, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     # Store quiz answers in the profiles table
     profile = Profile(
@@ -185,7 +186,7 @@ async def submit_quiz(answers: QuizAnswers, current_user: User = Depends(get_cur
 
 # --- Authentication Endpoints ---
 
-@app.post("/auth/register", response_model=User)
+@app.post("/auth/signup", response_model=User)
 async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(DBUser).filter(DBUser.email == user.email).first()
     if db_user:
@@ -242,7 +243,7 @@ from fastapi.responses import StreamingResponse
 
 # ... (imports remain the same) ...
 
-@app.post("/chat")
+@app.post("/auth/chat")
 async def chat_with_rag(request: ChatRequest, current_user: User = Depends(get_current_user)):
     logging.info(f"Received chat request: {request.message}")
     if request.selected_text:
@@ -273,7 +274,7 @@ class PersonalizeRequest(BaseModel):
     chapter_original_text: str
     user_id: int
 
-@app.post("/personalize")
+@app.post("/auth/personalize")
 async def personalize_text(request: PersonalizeRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Ensure the request user_id matches the authenticated user
     if request.user_id != current_user.id:
@@ -329,7 +330,7 @@ class TranslateRequest(BaseModel):
     text: str
     target_language: str
 
-@app.post("/translate")
+@app.post("/auth/translate")
 async def translate_text(request: TranslateRequest, current_user: User = Depends(get_current_user)):
     try:
         llm = ChatOpenAI(
@@ -361,7 +362,7 @@ async def translate_text(request: TranslateRequest, current_user: User = Depends
         raise HTTPException(status_code=500, detail=f"Failed to translate text: {str(e)}")
 
 
-@app.get("/users/me", response_model=User)
+@app.get("/auth/users/me", response_model=User)
 async def read_users_me(current_user: DBUser = Depends(get_current_user), db: Session = Depends(get_db)):
     user_response = User(id=current_user.id, email=current_user.email)
     profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()

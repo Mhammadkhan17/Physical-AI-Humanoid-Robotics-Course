@@ -23,3 +23,5 @@ vercel_log*.txt
 backend/rag/ingest.py
 backend/rag/retrieve.py
 backend/requirements-ingest.txt
+.vercel
+.env*.local

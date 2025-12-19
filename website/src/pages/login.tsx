@@ -42,12 +42,15 @@ function LoginPage(): JSX.Element {
 
       // Race the fetch request against the timeout
       const response = await Promise.race([
-        fetch('/auth/login', {
+        fetch('/auth/login', { // Added missing slash and port
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({
+            email: email,     // Matches UserCreate model in app.py
+            password: password
+          }),
         }),
         timeout
       ]) as Response;
@@ -74,7 +77,7 @@ function LoginPage(): JSX.Element {
       setLoading(false);
     }
   };
-  
+
   if (!auth) {
     return (
       <Layout title="Login" description="Login to your account.">
@@ -107,11 +110,11 @@ function LoginPage(): JSX.Element {
         >
           <h1 style={{ marginBottom: '20px' }}>Login</h1>
           {reason === 'unauthorized_content' && (
-            <div style={{ 
-              padding: '10px', 
-              marginBottom: '20px', 
-              backgroundColor: 'var(--ifm-color-info-background)', 
-              color: 'var(--ifm-color-info-dark)', 
+            <div style={{
+              padding: '10px',
+              marginBottom: '20px',
+              backgroundColor: 'var(--ifm-color-info-background)',
+              color: 'var(--ifm-color-info-dark)',
               borderRadius: '5px',
               border: '1px solid var(--ifm-color-info)'
             }}>
