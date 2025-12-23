@@ -14,8 +14,13 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "backend/app.py" },
-    { "source": "/auth/(.*)", "destination": "backend/app.py" },
-    { "source": "/(.*)", "destination": "/website/$1" }
+    {
+      "source": "/api/(.*)",
+      "destination": "backend/app.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/website/$1"
+    }
   ]
 }

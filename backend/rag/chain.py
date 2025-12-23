@@ -3,7 +3,8 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI # Use ChatGoogleGenerativeAI
 
-from backend.rag.gemini_retrieve import get_retriever # Assuming relative import structure
+# Assuming relative import structure
+from backend.rag.gemini_retrieve import get_retriever
 import os
 from dotenv import load_dotenv # Added to load API keys
 from pathlib import Path # Added for dotenv path
@@ -14,45 +15,52 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # Load Gemini API Key
 
 def format_docs(docs):
+    if not docs:
+        print("DEBUG: No documents found for this chapter_id!")
     return "\n\n".join(doc.page_content for doc in docs)
 
 def create_rag_chain(selected_text: str = None, chapter_id: str = None):
+    retriever = get_retriever(chapter_id=chapter_id)
     """
     Creates and returns a RAG chain.
     """
-    retriever = get_retriever()
     if not GEMINI_API_KEY:
         raise ValueError("GEMINI_API_KEY must be set in backend/.env file for the LLM.")
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         google_api_key=GEMINI_API_KEY,
-        temperature=0.7
+        temperature=0.3
     )
-    template = """You are an AI assistant for a textbook on Physical AI & Humanoid Robotics.
-    Answer the question using a combination of the retrieved 'Retrieved Context' and the user's 'User's Selected Text' from the specified 'Chapter ID'.
-    The 'User's Selected Text' provides specific focus, but you should use the 'Retrieved Context' for broader information and definitions.
-    If you don't know the answer from the combined information, just say that you don't know.
+    template = """You are a specialized AI tutor for the 'Physical AI & Humanoid Robotics' textbook.
 
-    Retrieved Context: {context}
+    ---
+    TEXTBOOK CONTEXT (Retrieved from database):
+    {context}
 
-    Chapter ID: {chapter_id}
+    USER'S HIGHLIGHTED TEXT:
+    {selected_text}
+    ---
 
-    User's Selected Text: {selected_text}
+    INSTRUCTIONS:
+    1. Look at the 'TEXTBOOK CONTEXT' provided. Does it contain a direct explanation of '{selected_text}'?
+    2. If YES: Explain it using the textbook's specific wording and examples.
+    3. If NO: Look at the 'USER'S HIGHLIGHTED TEXT' itself. If the definition is common knowledge in ROS 2 (like Nodes), explain it clearly using your expertise, but explicitly start by saying: "While the retrieved excerpts focus on [Subject of Context], here is a general explanation of {selected_text}..."
+    4. Ensure you mention specific ROS 2 concepts like 'rclpy', 'executables', and 'graph' if they are in the context.
 
     Question: {question}
-    """
+    Answer:"""
     prompt = ChatPromptTemplate.from_template(template)
 
     rag_chain = (
-        {
-            "context": retriever | format_docs,
-            "question": RunnablePassthrough(),
-            "selected_text": lambda x: selected_text,
-            "chapter_id": lambda x: chapter_id,
-        }
-        | prompt
-        | llm
-        | StrOutputParser()
+    {
+        "context": retriever | format_docs,
+        "question": RunnablePassthrough(),
+        "selected_text": lambda x: selected_text if selected_text and selected_text.strip() else "No specific text selected.",
+        "chapter_id": lambda x: chapter_id if chapter_id else "General Textbook",
+    }
+    | prompt
+    | llm
+    | StrOutputParser()
     )
     return rag_chain
 

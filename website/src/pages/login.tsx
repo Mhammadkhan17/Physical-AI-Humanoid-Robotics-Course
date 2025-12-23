@@ -42,15 +42,12 @@ function LoginPage(): JSX.Element {
 
       // Race the fetch request against the timeout
       const response = await Promise.race([
-        fetch('/auth/login', { // Added missing slash and port
+        fetch('/api/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            email: email,     // Matches UserCreate model in app.py
-            password: password
-          }),
+          body: JSON.stringify({ email, password }),
         }),
         timeout
       ]) as Response;

@@ -1,49 +1,78 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel
-from typing import Optional
+import json
+import os
+import logging
 from datetime import datetime, timedelta
+from typing import Optional, List
+
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from sqlalchemy import create_engine, Column, Integer, String, Boolean
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base
+from dotenv import load_dotenv
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from sqlalchemy import create_engine, Column, Integer, String, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
-from dotenv import load_dotenv
-import os
-
-from backend.rag.chain import create_rag_chain, format_docs
-from langchain_openai import ChatOpenAI
+# --- RAG/LLM Imports ---
+from backend.rag.chain import create_rag_chain
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-import logging
 
-# from agents.ros2_code_generator import router as ros2_code_router
-# from agents.mermaid_diagram_generator import router as mermaid_router
-# from agents.ros2_doctor import router as ros2_doctor_router
-#(#frombackend.rag.gemini_retrieveimportget_retriever)
+# --- Agent Router Imports ---
+# from backend.agents.ros2_code_generator import router as ros2_code_router
+# from backend.agents.mermaid_diagram_generator import router as mermaid_router
+# from backend.agents.ros2_doctor import router as ros2_doctor_router
 
 # Load environment variables
 load_dotenv()
+
+# --- Environment & JWT Settings ---
 DATABASE_URL = os.getenv("DATABASE_URL")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-# JWT settings
-SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key") # Use environment variable or a default
+SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Password hashing
+# Configure basic logging
+logging.basicConfig(level=logging.INFO)
+
+# --- App & Middleware Setup ---
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://physical-ai-humanoid-robotics-cours-zeta.vercel.app",
+        "https://physical-ai-humanoid-robotics-course.vercel.app"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- Password & Auth Setup ---
 pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+# --- SQLAlchemy Setup ---
+# Ensure DATABASE_URL is present
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
 
-# SQLAlchemy setup
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+    )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Database Models
+# --- Database Models ---
 class DBUser(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -53,39 +82,16 @@ class DBUser(Base):
 class Profile(Base):
     __tablename__ = "profiles"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, unique=True, index=True)  # Link to better-auth user ID
+    user_id = Column(Integer, unique=True, index=True)
     python_experience = Column(Integer)
     ros_experience = Column(Integer)
     has_gpu = Column(Boolean)
-    has_jetson = Column(Boolean)
-    has_robot_access = Column(Boolean)
+    has_jetson = Column(Boolean, default=False)
+    has_robot_access = Column(Boolean, default=False)
 
-# Create database tables
 Base.metadata.create_all(bind=engine)
 
-# Dependency to get DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# Pydantic models for authentication
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-    user: dict # To pass user data to frontend
-
-class TokenData(BaseModel):
-    email: Optional[str] = None
-
-class UserBase(BaseModel):
-    email: str
-
-class UserCreate(UserBase):
-    password: str
-
+# --- Pydantic Models ---
 class ProfileResponse(BaseModel):
     id: int
     user_id: int
@@ -95,17 +101,57 @@ class ProfileResponse(BaseModel):
     has_jetson: bool
     has_robot_access: bool
     class Config:
-        from_attributes = True # Fix for Pydantic v2
+        from_attributes = True
 
+class UserBase(BaseModel):
+    email: str
+
+class UserCreate(UserBase):
+    password: str
 
 class User(UserBase):
     id: int
-    profile: Optional[ProfileResponse] = None # Include optional profile data
+    profile: Optional[ProfileResponse] = None
     class Config:
-        from_attributes = True # Fix for Pydantic v2
+        from_attributes = True
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: User
 
-# Helper functions for authentication
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class QuizAnswers(BaseModel):
+    python_experience: int
+    ros_experience: int
+    has_gpu: bool
+    has_jetson: bool
+    has_robot_access: bool
+
+class ChatRequest(BaseModel):
+    message: str
+    selected_text: Optional[str] = None
+    chapter_id: Optional[str] = None
+
+class PersonalizeRequest(BaseModel):
+    chapter_original_text: str
+    user_id: int
+
+class TranslateRequest(BaseModel):
+    text: str
+    target_language: str
+    
+# --- DB Session Dependency ---
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# --- Auth Helper Functions ---
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -114,15 +160,11 @@ def get_password_hash(password):
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> DBUser:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -133,60 +175,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-        token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
-    user = db.query(DBUser).filter(DBUser.email == token_data.email).first()
+    user = db.query(DBUser).filter(DBUser.email == email).first()
     if user is None:
         raise credentials_exception
     return user
 
-from starlette.middleware.cors import CORSMiddleware
+# --- API Endpoints ---
 
-app = FastAPI()
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000",
-                   "https://physical-ai-humanoid-robotics-cours-zeta.vercel.app/"],  # Allow your Docusaurus frontend
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# app.include_router(ros2_code_router, prefix="/agents/ros2_code", tags=["agents"])
-# app.include_router(mermaid_router, prefix="/agents/mermaid", tags=["agents"])
-# app.include_router(ros2_doctor_router, prefix="/agents/ros2_doctor", tags=["agents"])
-
-class QuizAnswers(BaseModel):
-    # user_id: int # Assuming user_id comes from frontend now - user_id will come from authenticated user
-    python_experience: int  # e.g., 0-5 scale
-    ros_experience: int
-    has_gpu: bool
-    has_jetson: bool
-    has_robot_access: bool
-
-@app.post("/auth/quiz")
-async def submit_quiz(answers: QuizAnswers, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # Store quiz answers in the profiles table
-    profile = Profile(
-        user_id=current_user.id, # Use authenticated user's ID
-        python_experience=answers.python_experience,
-        ros_experience=answers.ros_experience,
-        has_gpu=answers.has_gpu,
-        has_jetson=answers.has_jetson,
-        has_robot_access=answers.has_robot_access,
-    )
-    db.add(profile)
-    db.commit()
-    db.refresh(profile)
-
-    return {"status": "success", "message": "Quiz answers saved.", "profile_id": profile.id}
-
-# --- Authentication Endpoints ---
-
-@app.post("/auth/signup", response_model=User)
+@app.post("/api/auth/register", response_model=User)
 async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(DBUser).filter(DBUser.email == user.email).first()
     if db_user:
@@ -199,7 +197,7 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
-@app.post("/auth/login", response_model=Token)
+@app.post("/api/auth/login", response_model=Token)
 async def login_for_access_token(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(DBUser).filter(DBUser.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.hashed_password):
@@ -208,93 +206,75 @@ async def login_for_access_token(user: UserCreate, db: Session = Depends(get_db)
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": db_user.email}, expires_delta=access_token_expires
-    )
-    # Fetch profile and include it in the user data returned to the frontend
+    access_token = create_access_token(data={"sub": db_user.email})
     profile = db.query(Profile).filter(Profile.user_id == db_user.id).first()
-    user_data = {"id": db_user.id, "email": db_user.email}
+    user_response = User.from_orm(db_user)
     if profile:
-        user_data["profile"] = ProfileResponse.from_orm(profile).dict()
+        user_response.profile = ProfileResponse.from_orm(profile)
     
-    return {"access_token": access_token, "token_type": "bearer", "user": user_data}
+    return {"access_token": access_token, "token_type": "bearer", "user": user_response}
 
+@app.get("/api/users/me", response_model=User)
+async def read_users_me(current_user: DBUser = Depends(get_current_user), db: Session = Depends(get_db)):
+    user_response = User.from_orm(current_user)
+    profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
+    if profile:
+        user_response.profile = ProfileResponse.from_orm(profile)
+    return user_response
 
-# Configure basic logging
-logging.basicConfig(level=logging.INFO)
+@app.post("/api/profile/quiz")
+async def submit_quiz(answers: QuizAnswers, current_user: DBUser = Depends(get_current_user), db: Session = Depends(get_db)):
+    profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
+    if not profile:
+        profile = Profile(user_id=current_user.id)
+        db.add(profile)
+    
+    profile.python_experience = answers.python_experience
+    profile.ros_experience = answers.ros_experience
+    profile.has_gpu = answers.has_gpu
+    profile.has_jetson = answers.has_jetson
+    profile.has_robot_access = answers.has_robot_access
+    
+    db.commit()
+    return {"status": "success", "message": "Quiz answers saved."}
 
-class IngestRequest(BaseModel):
-    url: str
-
-class ChatRequest(BaseModel):
-    message: str
-    selected_text: Optional[str] = None
-    chapter_id: Optional[str] = None # Add chapter_id
-    chapter_id: Optional[str] = None # Add chapter_id
-
-@app.post("/ingest")
-async def ingest_document(request: IngestRequest, current_user: User = Depends(get_current_user)):
-    # Placeholder for document ingestion logic
-    # In a real app, you might associate ingested docs with the user
-    return {"status": "success", "message": f"Document from {request.url} ingested by user {current_user.email}."}
-
-from fastapi.responses import StreamingResponse
-
-# ... (imports remain the same) ...
-
-@app.post("/auth/chat")
-async def chat_with_rag(request: ChatRequest, current_user: User = Depends(get_current_user)):
-    logging.info(f"Received chat request: {request.message}")
-    if request.selected_text:
-        logging.info(f"With selected text: {request.selected_text}")
-
+@app.post("/api/chat")
+async def chat_with_rag(request: ChatRequest, current_user: DBUser = Depends(get_current_user)):
+    
+    clean_id = request.chapter_id.split('/')[-1] if request.chapter_id else None
+    
+    logging.info(f"Cleaned Chapter ID for Search: {clean_id}")
+    
     async def stream_generator():
         try:
             rag_chain = create_rag_chain(
                 selected_text=request.selected_text,
-                chapter_id=request.chapter_id
+                chapter_id=clean_id # Use the cleaned ID
             )
-            
-            # Use .stream() for a streaming response
-            stream = rag_chain.stream(request.message)
-            
-            for chunk in stream:
-                logging.info(f"Streaming chunk: {chunk}")
-                yield chunk
-
+            # This will yield tokens as they are generated by Gemini
+            for chunk in rag_chain.stream(request.message):
+                yield chunk 
         except Exception as e:
-            logging.error(f"Error in RAG chain stream: {e}", exc_info=True)
-            # Yield a final message indicating an error
-            yield "Error: Could not process the request."
-
+            yield f"Error: {str(e)}"
     return StreamingResponse(stream_generator(), media_type="text/plain")
 
-class PersonalizeRequest(BaseModel):
-    chapter_original_text: str
-    user_id: int
-
-@app.post("/auth/personalize")
-async def personalize_text(request: PersonalizeRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # Ensure the request user_id matches the authenticated user
+@app.post("/api/personalize")
+async def personalize_text(request: PersonalizeRequest, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_user)):
     if request.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="User ID does not match authenticated user.")
 
     profile = db.query(Profile).filter(Profile.user_id == request.user_id).first()
 
     if not profile:
-        # If no profile, return original text
         return {"personalized_chapter_text": request.chapter_original_text}
 
     try:
-        llm = ChatOpenAI(
+        llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
-            openai_api_key=os.getenv("GEMINI_API_KEY"),
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            google_api_key=GEMINI_API_KEY,
             temperature=0.7
         )
         
-        # Determine expertise level for prompt
         expertise_levels = {
             0: "a complete beginner", 1: "a beginner",
             2: "an intermediate learner", 3: "an advanced learner",
@@ -303,16 +283,7 @@ async def personalize_text(request: PersonalizeRequest, db: Session = Depends(ge
         python_expertise = expertise_levels.get(profile.python_experience, "an intermediate learner")
         ros_expertise = expertise_levels.get(profile.ros_experience, "an intermediate learner")
 
-        template = f"""You are a helpful AI textbook author. Dramatically rewrite the following chapter text to be tailored for a student who is {python_expertise} in Python and {ros_expertise} in ROS.
-        Make the changes obvious and significant.
-        
-        - If the user is a beginner, simplify complex concepts, use simple words, and add helpful analogies.
-        - If the user is an expert, be more concise, use highly technical terms, and focus only on the most advanced details.
-        - Do not add any preamble, introduction, or conclusion. Return only the rewritten chapter text.
-
-        Original Text:
-        "{{chapter_original_text}}"
-        """
+        template = f"Dramatically rewrite the following chapter text for a student who is {python_expertise} in Python and {ros_expertise} in ROS. Return only the rewritten chapter text.\n\nOriginal Text:\n\"{{chapter_original_text}}\""
         prompt = ChatPromptTemplate.from_template(template)
         
         chain = prompt | llm | StrOutputParser()
@@ -326,27 +297,16 @@ async def personalize_text(request: PersonalizeRequest, db: Session = Depends(ge
         logging.error(f"Error in personalization endpoint: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to personalize text: {str(e)}")
 
-class TranslateRequest(BaseModel):
-    text: str
-    target_language: str
-
-@app.post("/auth/translate")
-async def translate_text(request: TranslateRequest, current_user: User = Depends(get_current_user)):
+@app.post("/api/translate")
+async def translate_text(request: TranslateRequest, current_user: DBUser = Depends(get_current_user)):
     try:
-        llm = ChatOpenAI(
+        llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
-            openai_api_key=os.getenv("GEMINI_API_KEY"),
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-            temperature=0.2 # Lower temperature for more direct translation
+            google_api_key=GEMINI_API_KEY,
+            temperature=0.2
         )
         
-        template = """Translate the following text into {target_language}.
-        Return only the translated text, with no preamble or explanation.
-        IMPORTANT: Do not translate any text that appears inside of a code block, which is denoted by triple backticks (```). Keep the content within the code blocks exactly as it is in the original language, and preserve the backticks.
-
-        Text to translate:
-        "{text}"
-        """
+        template = "Translate the following text into {target_language}. Return only the translated text. IMPORTANT: Do not translate text inside ```. Keep the content within the code blocks exactly as it is.\n\nText to translate:\n\"{text}\""
         prompt = ChatPromptTemplate.from_template(template)
         
         chain = prompt | llm | StrOutputParser()
@@ -360,15 +320,6 @@ async def translate_text(request: TranslateRequest, current_user: User = Depends
     except Exception as e:
         logging.error(f"Error in translation endpoint: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to translate text: {str(e)}")
-
-
-@app.get("/auth/users/me", response_model=User)
-async def read_users_me(current_user: DBUser = Depends(get_current_user), db: Session = Depends(get_db)):
-    user_response = User(id=current_user.id, email=current_user.email)
-    profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
-    if profile:
-        user_response.profile = ProfileResponse.from_orm(profile)
-    return user_response
 
 @app.get("/")
 async def read_root():

@@ -58,7 +58,7 @@ class GeminiEmbeddings(Embeddings):
 # --- Ingestion Logic ---
 QDRANT_HOST = os.getenv("QDRANT_HOST")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-NEW_COLLECTION_NAME = "Physical AI & Humanoid Robotics"
+NEW_COLLECTION_NAME = "Physical_AI_Textbook_v2"
 
 def ingest_with_gemini():
     """
@@ -77,17 +77,26 @@ def ingest_with_gemini():
 
     # 2. Create new collection
     try:
+        # ADD THIS: Delete if exists to prevent duplicate/mismatched IDs
         if client.collection_exists(collection_name=NEW_COLLECTION_NAME):
-            print(f"Collection '{NEW_COLLECTION_NAME}' already exists. Skipping creation.")
-        else:
-            print(f"Creating new collection: '{NEW_COLLECTION_NAME}'")
-            client.create_collection(
-                collection_name=NEW_COLLECTION_NAME,
-                vectors_config=models.VectorParams(size=1024, distance=models.Distance.COSINE),
-            )
-            print("Collection created successfully.")
+            print(f"Deleting existing collection '{NEW_COLLECTION_NAME}' for a fresh start...")
+            client.delete_collection(collection_name=NEW_COLLECTION_NAME)
+        
+        print(f"Creating new collection: '{NEW_COLLECTION_NAME}'")
+        client.create_collection(
+            collection_name=NEW_COLLECTION_NAME,
+            vectors_config=models.VectorParams(size=1024, distance=models.Distance.COSINE),
+        )
+        
+        print(f"Creating payload index for chapter_id...")
+        client.create_payload_index(
+            collection_name=NEW_COLLECTION_NAME,
+            field_name="metadata.chapter_id",
+            field_schema=models.PayloadSchemaType.KEYWORD,
+        )
+        print("Collection created successfully.")
     except Exception as e:
-        print(f"Error during collection creation: {e}")
+        print(f"Error during collection creation/reset: {e}")
         return
 
     # 3. Load and split documents
@@ -103,7 +112,16 @@ def ingest_with_gemini():
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     texts = text_splitter.split_documents(documents)
-    print(f"Split documents into {len(texts)} chunks.")
+    
+    for chunk in texts:
+    # Get path relative to the 'docs' directory to include the folder name
+        file_path = Path(chunk.metadata['source'])
+        relative_path = file_path.relative_to(content_path)
+        
+        formatted_id = str(relative_path.with_suffix('')).replace('\\', '/')
+        chunk.metadata['chapter_id'] = formatted_id
+    
+    print(f"Split documents into {len(texts)} chunks with Full Path IDs.")
 
     # 4. Instantiate the vector store and add documents in batches
     try:

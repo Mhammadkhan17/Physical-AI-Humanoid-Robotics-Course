@@ -50,7 +50,7 @@ const QuizPage: React.FC = () => {
     };
 
     try {
-      const response = await fetch('/auth/quiz', {
+      const response = await fetch('/api/profile/quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

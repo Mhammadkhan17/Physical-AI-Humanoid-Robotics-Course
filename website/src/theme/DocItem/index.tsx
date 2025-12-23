@@ -18,13 +18,12 @@ export default function DocItemWrapper(props) {
   const [isLoadingTranslate, setIsLoadingTranslate] = useState(false);
   const [errorTranslate, setErrorTranslate] = useState<string | null>(null);
   const [showTranslated, setShowTranslated] = useState(false);
-  const [hasProfile, setHasProfile] = useState<boolean>(false); // New state for profile
-  const [showAskAiButton, setShowAskAiButton] = useState(false); // State for Ask AI button visibility
-  const [askAiButtonPosition, setAskAiButtonPosition] = useState({ x: 0, y: 0 }); // State for Ask AI button position
+  const [hasProfile, setHasProfile] = useState<boolean>(false);
+  const [showAskAiButton, setShowAskAiButton] = useState(false);
+  const [askAiButtonPosition, setAskAiButtonPosition] = useState({ x: 0, y: 0 });
 
-  const authContext = useAuth(); // Get the context object
-  console.log('DocItemWrapper useAuth() result:', authContext); // Log it for debugging
-  const { isAuthenticated, loading, token, user } = authContext;
+  // --- All hooks must be called at the top level ---
+  const { isAuthenticated, loading, token, user } = useAuth();
   const { selectedText, setSelectedText, setChapterId } = useSelectedText();
   const { setIsOpen: setChatbotOpen } = useChatbotVisibility();
   const history = useHistory();
@@ -32,24 +31,13 @@ export default function DocItemWrapper(props) {
   const quizUrl = useBaseUrl('/quiz');
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Redirect unauthenticated users
+  // --- All effects must also be called at the top level ---
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      // Append a reason to the URL for the login page to display a message
       window.location.href = `${baseUrl}?reason=unauthorized_content`;
     }
   }, [loading, isAuthenticated, baseUrl]);
 
-  // If still loading or not authenticated, render a loading state to prevent flicker
-  if (loading || !isAuthenticated) {
-    return (
-      <div style={{ padding: '20px' }}>
-        <p>Redirecting to login...</p>
-      </div>
-    );
-  }
-
-  // Fetch user profile to check if quiz has been taken
   useEffect(() => {
     const fetchProfile = async () => {
       if (isAuthenticated && token && user) {
@@ -61,10 +49,7 @@ export default function DocItemWrapper(props) {
           });
           if (response.ok) {
             const userData = await response.json();
-            // Assuming the 'user' object from /users/me endpoint contains profile info
-            // or we might need a separate /profile endpoint
-            // For now, let's assume if user.profile exists or a specific field indicates it
-            if (userData && userData.profile) { // This will need adjustment based on actual /users/me response structure
+            if (userData && userData.profile) {
                 setHasProfile(true);
             } else {
                 setHasProfile(false);
@@ -77,24 +62,20 @@ export default function DocItemWrapper(props) {
           console.error("Network error fetching user profile:", error);
           setHasProfile(false);
         }
-      } else {
-        setHasProfile(false);
       }
     };
     fetchProfile();
   }, [isAuthenticated, token, user]);
 
-  // Capture selected text and show Ask AI button
   useEffect(() => {
     const handleMouseUp = (event: MouseEvent) => {
-      // Only process clicks inside the content area
       if (contentRef.current && contentRef.current.contains(event.target as Node)) {
         const selection = window.getSelection();
         const selectedString = selection.toString().trim();
 
         if (selectedString.length > 0) {
           setSelectedText(selectedString);
-          setChapterId(props.content.metadata.id); // Set the chapter ID
+          setChapterId(props.content.metadata.id);
           const range = selection.getRangeAt(0);
           const rect = range.getBoundingClientRect();
           setAskAiButtonPosition({
@@ -103,14 +84,12 @@ export default function DocItemWrapper(props) {
           });
           setShowAskAiButton(true);
         } else {
-          // If the click was inside but resulted in an empty selection, clear it
           setSelectedText(null);
-          setChapterId(null); // Clear the chapter ID
+          setChapterId(null);
           setShowAskAiButton(false);
         }
       } else {
-        // If the click was outside the content area, do nothing.
-        // This prevents clearing the selection when clicking in the chatbot.
+        // This part is important to NOT clear selection when interacting with the chatbot
       }
     };
 
@@ -118,14 +97,23 @@ export default function DocItemWrapper(props) {
     return () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [setSelectedText]);
+  }, [setSelectedText, setChapterId, props.content.metadata.id]);
 
-  // Hide Ask AI button if selectedText is cleared (e.g., by chatbot)
   useEffect(() => {
     if (!selectedText) {
       setShowAskAiButton(false);
     }
   }, [selectedText]);
+
+
+  // --- Conditional rendering can come after all hooks and effects ---
+  if (loading || !isAuthenticated) {
+    return (
+      <div style={{ padding: '20px' }}>
+        <p>Redirecting to login...</p>
+      </div>
+    );
+  }
 
 
   const handlePersonalize = async () => {

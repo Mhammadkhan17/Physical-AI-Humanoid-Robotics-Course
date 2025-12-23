@@ -35,6 +35,28 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+  
+  // plugins: [
+  //   async function apiProxyPlugin(context, options) {
+  //     return {
+  //       name: 'api-proxy',
+  //       configureWebpack() {
+  //         return {
+  //           devServer: {
+  //             proxy: [
+  //               {
+  //                 context: ['/api'],
+  //                 target: 'http://127.0.0.1:8000',
+  //                 changeOrigin: true,
+  //                 pathRewrite: { '^/api': '' },
+  //               },
+  //             ],
+  //           },
+  //         } as any; // The 'as any' bypasses the strict Webpack return type check
+  //       },
+  //     };
+  //   },
+  // ],
 
   presets: [
     [
@@ -70,17 +92,6 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Add dev server proxy configuration
-    devServer: {
-      proxy: {
-        '/api': {
-          target: 'http://localhost:8000',
-          changeOrigin: true,
-          pathRewrite: { '^/api': '' },
-        },
-      },
-    },
-
     // Replace with your project's social card
     image: 'img/book_cover.png',
     colorMode: {
