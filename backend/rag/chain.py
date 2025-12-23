@@ -3,7 +3,7 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI # Use ChatGoogleGenerativeAI
 
-from rag.gemini_retrieve import get_retriever
+from .gemini_retrieve import get_retriever
 import os
 from dotenv import load_dotenv # Added to load API keys
 from pathlib import Path # Added for dotenv path
