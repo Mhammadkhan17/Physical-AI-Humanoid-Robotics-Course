@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# Add the project root to the Python path
+# This allows for absolute imports from the 'backend' module in Vercel
+root_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(root_dir))
+
 import json
 import os
 import logging
@@ -17,15 +25,15 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 # --- RAG/LLM Imports ---
-from .rag.chain import create_rag_chain
+from backend.rag.chain import create_rag_chain
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 # --- Agent Router Imports ---
-from .agents.ros2_code_generator import router as ros2_code_router
-from .agents.mermaid_diagram_generator import router as mermaid_router
-from .agents.ros2_doctor import router as ros2_doctor_router
+from backend.agents.ros2_code_generator import router as ros2_code_router
+from backend.agents.mermaid_diagram_generator import router as mermaid_router
+from backend.agents.ros2_doctor import router as ros2_doctor_router
 
 # Load environment variables
 load_dotenv()
@@ -184,6 +192,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 
 # --- API Endpoints ---
 
+# Agent Routers
+app.include_router(ros2_code_router, prefix="/api/agents/ros2_code", tags=["agents"])
+app.include_router(mermaid_router, prefix="/api/agents/mermaid", tags=["agents"])
+app.include_router(ros2_doctor_router, prefix="/api/agents/ros2_doctor", tags=["agents"])
 @app.post("/api/auth/register", response_model=User)
 async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(DBUser).filter(DBUser.email == user.email).first()
