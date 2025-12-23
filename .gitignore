@@ -1,4 +1,5 @@
 # Environment variables
+.env
 backend/.env
 
 # Virtual environment
@@ -20,6 +21,7 @@ uvicorn/
 
 # Local and log files
 vercel_log*.txt
+log_error.txt
 backend/rag/ingest.py
 backend/rag/retrieve.py
 backend/requirements-ingest.txt

@@ -17,15 +17,15 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 # --- RAG/LLM Imports ---
-from backend.rag.chain import create_rag_chain
+from .rag.chain import create_rag_chain
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 # --- Agent Router Imports ---
-# from backend.agents.ros2_code_generator import router as ros2_code_router
-# from backend.agents.mermaid_diagram_generator import router as mermaid_router
-# from backend.agents.ros2_doctor import router as ros2_doctor_router
+from .agents.ros2_code_generator import router as ros2_code_router
+from .agents.mermaid_diagram_generator import router as mermaid_router
+from .agents.ros2_doctor import router as ros2_doctor_router
 
 # Load environment variables
 load_dotenv()
