@@ -4,9 +4,7 @@
     {
       "src": "website/package.json",
       "use": "@vercel/static-build",
-      "config": { 
-        "distDir": "build" 
-      }
+      "config": { "distDir": "build" }
     },
     {
       "src": "backend/app.py",
@@ -19,7 +17,7 @@
       "destination": "backend/app.py"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/website/$1"
     }
   ]

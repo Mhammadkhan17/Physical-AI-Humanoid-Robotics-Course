@@ -36,27 +36,29 @@ const config: Config = {
     locales: ['en'],
   },
   
-  // plugins: [
-  //   async function apiProxyPlugin(context, options) {
-  //     return {
-  //       name: 'api-proxy',
-  //       configureWebpack() {
-  //         return {
-  //           devServer: {
-  //             proxy: [
-  //               {
-  //                 context: ['/api'],
-  //                 target: 'http://127.0.0.1:8000',
-  //                 changeOrigin: true,
-  //                 pathRewrite: { '^/api': '' },
-  //               },
-  //             ],
-  //           },
-  //         } as any; // The 'as any' bypasses the strict Webpack return type check
-  //       },
-  //     };
-  //   },
-  // ],
+  plugins: [
+    async function apiProxyPlugin(context, options) {
+      return {
+        name: 'api-proxy',
+        configureWebpack() {
+          return {
+            devServer: {
+              proxy: [
+                {
+                  context: ['/api'],
+                  target: 'http://127.0.0.1:8000',
+                  // pathRewrite: { '^/api': '' },
+                  changeOrigin: true,
+                  secure: false,
+                  logLevel: 'debug',
+                },
+              ],
+            },
+          } as any; // The 'as any' bypasses the strict Webpack return type check
+        },
+      };
+    },
+  ],
 
   presets: [
     [
