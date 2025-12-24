@@ -7,7 +7,7 @@ qdrant-client
 google-generativeai
 langchain-google-genai
 langchain_openai
-langchain-core
+langchain-core==1.2.0
 # langchain-community For Ingestion
 langchain-qdrant
 anyio
