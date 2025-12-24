@@ -5,7 +5,7 @@ python-dotenv
 qdrant-client
 google-generativeai
 langchain-google-genai
-langchain-core
+langchain-core>=0.3.0
 langchain-qdrant
 anyio
 passlib[bcrypt,argon2]
