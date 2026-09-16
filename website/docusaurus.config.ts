@@ -101,10 +101,6 @@ const config: Config = {
     },
     navbar: {
       title: 'Physical AI & Humanoid Robotics',
-      logo: {
-        alt: 'My Site Logo',
-        src: 'img/artificial-brain-computer-svgrepo-com.svg',
-      },
       items: [
         {
           type: 'docSidebar',

@@ -1,24 +1,20 @@
 import os
 import sys
 import logging
-from datetime import datetime, timedelta
 
 # Add the current directory to sys.path to allow imports of local modules in Vercel
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from typing import Optional
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, Boolean
+from sqlalchemy import create_engine, Column, Integer, Boolean
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
-from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 # --- RAG/LLM Imports ---
 from chain import create_rag_chain
@@ -29,12 +25,9 @@ from langchain_core.output_parsers import StrOutputParser
 # Load environment variables
 load_dotenv()
 
-# --- Environment & JWT Settings ---
+# --- Environment Settings ---
 DATABASE_URL = os.getenv("DATABASE_URL")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -53,10 +46,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Password & Auth Setup ---
-pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-
 # --- SQLAlchemy Setup ---
 # Ensure DATABASE_URL is present
 if not DATABASE_URL:
@@ -71,12 +60,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # --- Database Models ---
-class DBUser(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-
 class Profile(Base):
     __tablename__ = "profiles"
     id = Column(Integer, primary_key=True, index=True)
@@ -100,26 +83,6 @@ class ProfileResponse(BaseModel):
     has_robot_access: bool
     class Config:
         from_attributes = True
-
-class UserBase(BaseModel):
-    email: str
-
-class UserCreate(UserBase):
-    password: str
-
-class User(UserBase):
-    id: int
-    profile: Optional[ProfileResponse] = None
-    class Config:
-        from_attributes = True
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-    user: User
-
-class TokenData(BaseModel):
-    email: Optional[str] = None
 
 class QuizAnswers(BaseModel):
     python_experience: int
@@ -149,80 +112,11 @@ def get_db():
     finally:
         db.close()
 
-# --- Auth Helper Functions ---
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> DBUser:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-    user = db.query(DBUser).filter(DBUser.email == email).first()
-    if user is None:
-        raise credentials_exception
-    return user
-
-# --- API Endpoints ---)
-async def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(DBUser).filter(DBUser.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    hashed_password = get_password_hash(user.password)
-    db_user = DBUser(email=user.email, hashed_password=hashed_password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-@app.post("/api/auth/login", response_model=Token)
-async def login_for_access_token(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(DBUser).filter(DBUser.email == user.email).first()
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token = create_access_token(data={"sub": db_user.email})
-    profile = db.query(Profile).filter(Profile.user_id == db_user.id).first()
-    user_response = User.from_orm(db_user)
-    if profile:
-        user_response.profile = ProfileResponse.from_orm(profile)
-    
-    return {"access_token": access_token, "token_type": "bearer", "user": user_response}
-
-@app.get("/api/users/me", response_model=User)
-async def read_users_me(current_user: DBUser = Depends(get_current_user), db: Session = Depends(get_db)):
-    user_response = User.from_orm(current_user)
-    profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
-    if profile:
-        user_response.profile = ProfileResponse.from_orm(profile)
-    return user_response
-
 @app.post("/api/profile/quiz")
-async def submit_quiz(answers: QuizAnswers, current_user: DBUser = Depends(get_current_user), db: Session = Depends(get_db)):
-    profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
+async def submit_quiz(answers: QuizAnswers, db: Session = Depends(get_db)):
+    profile = db.query(Profile).filter(Profile.user_id == 1).first()
     if not profile:
-        profile = Profile(user_id=current_user.id)
+        profile = Profile(user_id=1)
         db.add(profile)
     
     profile.python_experience = answers.python_experience
@@ -235,7 +129,7 @@ async def submit_quiz(answers: QuizAnswers, current_user: DBUser = Depends(get_c
     return {"status": "success", "message": "Quiz answers saved."}
 
 @app.post("/api/chat")
-async def chat_with_rag(request: ChatRequest, current_user: DBUser = Depends(get_current_user)):
+async def chat_with_rag(request: ChatRequest):
     
     clean_id = request.chapter_id.split('/')[-1] if request.chapter_id else None
     
@@ -255,10 +149,7 @@ async def chat_with_rag(request: ChatRequest, current_user: DBUser = Depends(get
     return StreamingResponse(stream_generator(), media_type="text/plain")
 
 @app.post("/api/personalize")
-async def personalize_text(request: PersonalizeRequest, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_user)):
-    if request.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="User ID does not match authenticated user.")
-
+async def personalize_text(request: PersonalizeRequest, db: Session = Depends(get_db)):
     profile = db.query(Profile).filter(Profile.user_id == request.user_id).first()
 
     if not profile:
@@ -294,7 +185,7 @@ async def personalize_text(request: PersonalizeRequest, db: Session = Depends(ge
         raise HTTPException(status_code=500, detail=f"Failed to personalize text: {str(e)}")
 
 @app.post("/api/translate")
-async def translate_text(request: TranslateRequest, current_user: DBUser = Depends(get_current_user)):
+async def translate_text(request: TranslateRequest):
     try:
         llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",

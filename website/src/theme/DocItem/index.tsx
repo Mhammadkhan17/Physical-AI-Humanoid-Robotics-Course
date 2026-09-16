@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DocItem from '@theme-original/DocItem';
 import ChapterProgress from '@site/src/components/ChapterProgress';
-import { useAuth } from '@site/src/contexts/AuthContext';
 import { useHistory } from '@docusaurus/router';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import ReactMarkdown from 'react-markdown'; // Import ReactMarkdown
-import remarkGfm from 'remark-gfm'; // Import remarkGfm
-import rehypeRaw from 'rehype-raw'; // Import rehypeRaw
-import { useSelectedText } from '@site/src/contexts/SelectedTextContext'; // Import useSelectedText
-import { useChatbotVisibility } from '@site/src/contexts/ChatbotVisibilityContext'; // Import useChatbotVisibility
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { useSelectedText } from '@site/src/contexts/SelectedTextContext';
+import { useChatbotVisibility } from '@site/src/contexts/ChatbotVisibilityContext';
 
 export default function DocItemWrapper(props) {
   const [personalizedContent, setPersonalizedContent] = useState<string | null>(null);
@@ -18,54 +17,14 @@ export default function DocItemWrapper(props) {
   const [isLoadingTranslate, setIsLoadingTranslate] = useState(false);
   const [errorTranslate, setErrorTranslate] = useState<string | null>(null);
   const [showTranslated, setShowTranslated] = useState(false);
-  const [hasProfile, setHasProfile] = useState<boolean>(false);
   const [showAskAiButton, setShowAskAiButton] = useState(false);
   const [askAiButtonPosition, setAskAiButtonPosition] = useState({ x: 0, y: 0 });
 
-  // --- All hooks must be called at the top level ---
-  const { isAuthenticated, loading, token, user } = useAuth();
   const { selectedText, setSelectedText, setChapterId } = useSelectedText();
   const { setIsOpen: setChatbotOpen } = useChatbotVisibility();
   const history = useHistory();
-  const baseUrl = useBaseUrl('/login');
   const quizUrl = useBaseUrl('/quiz');
   const contentRef = useRef<HTMLDivElement>(null);
-
-  // --- All effects must also be called at the top level ---
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      window.location.href = `${baseUrl}?reason=unauthorized_content`;
-    }
-  }, [loading, isAuthenticated, baseUrl]);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (isAuthenticated && token && user) {
-        try {
-          const response = await fetch('/api/users/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          if (response.ok) {
-            const userData = await response.json();
-            if (userData && userData.profile) {
-                setHasProfile(true);
-            } else {
-                setHasProfile(false);
-            }
-          } else {
-            console.error("Failed to fetch user profile:", response.status);
-            setHasProfile(false);
-          }
-        } catch (error) {
-          console.error("Network error fetching user profile:", error);
-          setHasProfile(false);
-        }
-      }
-    };
-    fetchProfile();
-  }, [isAuthenticated, token, user]);
 
   useEffect(() => {
     const handleMouseUp = (event: MouseEvent) => {
@@ -88,8 +47,6 @@ export default function DocItemWrapper(props) {
           setChapterId(null);
           setShowAskAiButton(false);
         }
-      } else {
-        // This part is important to NOT clear selection when interacting with the chatbot
       }
     };
 
@@ -105,22 +62,7 @@ export default function DocItemWrapper(props) {
     }
   }, [selectedText]);
 
-
-  // --- Conditional rendering can come after all hooks and effects ---
-  if (loading || !isAuthenticated) {
-    return (
-      <div style={{ padding: '20px' }}>
-        <p>Redirecting to login...</p>
-      </div>
-    );
-  }
-
-
   const handlePersonalize = async () => {
-    if (!user || !token) {
-      alert("Please log in to personalize content.");
-      return;
-    }
     const chapterText = contentRef.current?.innerText || '';
     if (!chapterText) {
       alert("Could not find chapter content to personalize.");
@@ -137,11 +79,10 @@ export default function DocItemWrapper(props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           chapter_original_text: chapterText,
-          user_id: user.id,
+          user_id: 1,
         }),
       });
 
@@ -162,10 +103,6 @@ export default function DocItemWrapper(props) {
   };
 
   const handleTranslate = async () => {
-    if (!user || !token) {
-      alert("Please log in to translate content.");
-      return;
-    }
     const textToTranslate = personalizedContent || contentRef.current?.innerText || '';
     if (!textToTranslate) {
       alert("Could not find chapter content to translate.");
@@ -180,7 +117,6 @@ export default function DocItemWrapper(props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           text: textToTranslate,
@@ -210,80 +146,56 @@ export default function DocItemWrapper(props) {
 
   const handleAskAiClick = () => {
     if (selectedText) {
-      setChatbotOpen(true); // Open the chatbot
-      setShowAskAiButton(false); // Hide the button
+      setChatbotOpen(true);
+      setShowAskAiButton(false);
     }
   };
 
   return (
     <>
-      {isAuthenticated && <ChapterProgress chapterId={props.content.metadata.id} />}
-      {isAuthenticated && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-          <button
-            style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              padding: '8px 15px',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              marginRight: '10px',
-              fontFamily: 'Poppins, sans-serif' // Apply Poppins font
-            }}
-            onClick={
-              hasProfile
-                ? handlePersonalize
-                : () => history.push(quizUrl) // Redirect to quiz page
-            }
-            disabled={isLoadingPersonalize} // Only disable if personalizing
-          >
-            {isLoadingPersonalize
-              ? 'Personalizing...'
-              : hasProfile
-              ? 'Personalize this chapter'
-              : 'Take Quiz to Personalize'}
-          </button>
-          <button
-            style={{
-              backgroundColor: '#28a745',
-              color: 'white',
-              padding: '8px 15px',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontFamily: 'Poppins, sans-serif' // Apply Poppins font
-            }}
-            onClick={handleTranslate}
-            disabled={isLoadingTranslate}
-          >
-            {isLoadingTranslate ? 'Translating...' : (
-              <>
-                <span style={{ fontFamily: 'Noto Nastaliq Urdu, serif' }}>اردو میں پڑھیں</span> / Read in Urdu
-              </>
-            )}
-          </button>
+      <ChapterProgress chapterId={props.content.metadata.id} />
+      
+      {/* Action Buttons */}
+      <div className="flex items-center justify-end gap-3 mb-6">
+        <button
+          className="px-4 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handlePersonalize}
+          disabled={isLoadingPersonalize}
+        >
+          {isLoadingPersonalize ? 'Personalizing...' : 'Personalize this chapter'}
+        </button>
+        <button
+          className="px-4 py-2 border-2 border-primary text-primary font-medium rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleTranslate}
+          disabled={isLoadingTranslate}
+        >
+          <span className="font-urdu mr-2">اردو میں پڑھیں</span> Read in Urdu
+        </button>
+      </div>
+
+      {/* Error Messages */}
+      {errorPersonalize && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+          {errorPersonalize}
+        </div>
+      )}
+      {errorTranslate && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+          {errorTranslate}
         </div>
       )}
 
-      {errorPersonalize && <p style={{ color: 'red' }}>Error: {errorPersonalize}</p>}
-      {errorTranslate && <p style={{ color: 'red' }}>Error: {errorTranslate}</p>}
-
-      {isAuthenticated && personalizedContent && ( // Show message if personalized content is present
-        <div style={{
-            backgroundColor: 'var(--ifm-color-info-background)',
-            color: 'var(--ifm-color-info)',
-            padding: '10px',
-            borderRadius: '5px',
-            marginBottom: '15px'
-        }}>
-            This chapter has been personalized for your experience level.
+      {/* Personalization Banner */}
+      {personalizedContent && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-5 text-sm dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300">
+          This chapter has been personalized for your experience level.
         </div>
       )}
 
+      {/* Main Content */}
       {displayContent ? (
         <ReactMarkdown
-          className={showTranslated ? "urdu-translation-content" : undefined}
+          style={showTranslated ? { fontFamily: "'Noto Nastaliq Urdu', serif", direction: 'rtl', lineHeight: '3em' } : undefined}
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
         >
@@ -295,22 +207,11 @@ export default function DocItemWrapper(props) {
         </div>
       )}
 
-      {isAuthenticated && showAskAiButton && selectedText && (
+      {/* Floating Ask AI Button */}
+      {showAskAiButton && selectedText && (
         <button
-          style={{
-            position: 'absolute',
-            left: askAiButtonPosition.x,
-            top: askAiButtonPosition.y,
-            backgroundColor: 'var(--ifm-color-primary)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            padding: '8px 12px',
-            cursor: 'pointer',
-            fontSize: '0.9em',
-            zIndex: 1001, // Ensure it's above other content
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-          }}
+          className="fixed z-[1001] px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg shadow-lg hover:bg-primary-dark transition-colors"
+          style={{ left: askAiButtonPosition.x, top: askAiButtonPosition.y }}
           onClick={handleAskAiClick}
         >
           Ask AI about this

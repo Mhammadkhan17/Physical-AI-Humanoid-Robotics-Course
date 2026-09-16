@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styles from './RAGChatbot.module.css';
-import { useAuth } from '@site/src/contexts/AuthContext';
 import { useSelectedText } from '@site/src/contexts/SelectedTextContext';
 import { useChatbotVisibility } from '@site/src/contexts/ChatbotVisibilityContext';
-import ReactMarkdown from 'react-markdown'; // Import ReactMarkdown
-import remarkGfm from 'remark-gfm'; // Import remarkGfm
-import rehypeRaw from 'rehype-raw'; // Import rehypeRaw
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 type Message = {
   text: string;
@@ -13,9 +11,8 @@ type Message = {
 };
 
 const RAGChatbot: React.FC = () => {
-  const { isAuthenticated, token } = useAuth();
   const { selectedText, setSelectedText, chapterId, setChapterId } = useSelectedText();
-  const { isOpen, setIsOpen } = useChatbotVisibility(); // Use useChatbotVisibility
+  const { isOpen, setIsOpen } = useChatbotVisibility();
   const [input, setInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -59,7 +56,6 @@ const RAGChatbot: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(body),
       });
@@ -97,39 +93,60 @@ const RAGChatbot: React.FC = () => {
     }
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
   return (
-    <div className={styles.chatbotContainer}>
-      <button className={styles.chatToggleButton} onClick={toggleChat}>
-        {isOpen ? 'Close' : 'Chat'}
+    <div className="fixed bottom-6 right-6 z-[1000]">
+      {/* Chat Toggle Button */}
+      <button
+        className="w-14 h-14 rounded-full bg-primary text-white border-none cursor-pointer shadow-lg flex items-center justify-center text-sm font-semibold transition-all duration-200 hover:bg-primary-dark hover:shadow-xl hover:scale-105 active:scale-95"
+        onClick={toggleChat}
+      >
+        {isOpen ? '✕' : 'Chat'}
       </button>
 
+      {/* Chat Window */}
       {isOpen && (
-        <div className={styles.chatWindow}>
-          <div className={styles.chatHeader}>
-            <h3>RAG Chatbot</h3>
-            <button onClick={toggleChat} className={styles.closeButton}>×</button>
+        <div className="absolute bottom-20 right-0 w-[380px] h-[520px] max-h-[80vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-[var(--ifm-background-color)] dark:border-gray-700">
+          {/* Header */}
+          <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center bg-gray-50 dark:bg-[var(--ifm-card-background-color)] dark:border-gray-700">
+            <h3 className="m-0 text-sm font-semibold text-gray-800 dark:text-gray-200">RAG Chatbot</h3>
+            <button 
+              onClick={toggleChat} 
+              className="w-7 h-7 rounded-full bg-transparent border-none text-gray-500 cursor-pointer flex items-center justify-center text-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              ×
+            </button>
           </div>
-          <div className={styles.messagesDisplay}>
+
+          {/* Messages Area */}
+          <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3">
+            {/* Selected Text Context */}
             {selectedText && (
-              <div className={styles.selectedContext}>
-                <p><strong>Context from selection:</strong></p>
-                <p className={styles.selectedContextText}>{selectedText}</p>
-                <button className={styles.clearContextButton} onClick={() => setSelectedText(null)}>Clear Context</button>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 relative dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300">
+                <p className="m-0 mb-2 font-medium">Context from selection:</p>
+                <p className="m-0 max-h-20 overflow-y-auto whitespace-pre-wrap break-words bg-white p-2 rounded border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
+                  {selectedText}
+                </p>
+                <button 
+                  className="absolute top-2 right-2 bg-transparent border-none text-red-500 cursor-pointer text-xs px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors" 
+                  onClick={() => setSelectedText(null)}
+                >
+                  Clear
+                </button>
               </div>
             )}
+
+            {/* Chat Messages */}
             {chatHistory.map((msg, index) => (
               <div
                 key={index}
-                className={`${styles.chatMessage} ${
-                  msg.sender === 'user' ? styles.userMessage : styles.botMessage
-                } ${isStreaming && index === chatHistory.length - 1 ? styles.streaming : ''}`}
+                className={`max-w-[85%] px-3 py-2 text-sm leading-relaxed ${
+                  msg.sender === 'user'
+                    ? 'bg-primary text-white self-end rounded-2xl rounded-br-md'
+                    : 'bg-gray-100 text-gray-800 self-start rounded-2xl rounded-bl-md border border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700'
+                } ${isStreaming && index === chatHistory.length - 1 ? 'animate-pulse-chat' : ''}`}
               >
                 {isStreaming && msg.sender === 'bot' && msg.text === '' ? (
-                  <div className={styles.spinner}></div>
+                  <div className="w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin"></div>
                 ) : (
                   <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                     {msg.text}
@@ -139,8 +156,10 @@ const RAGChatbot: React.FC = () => {
             ))}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Input Area */}
           <form
-            className={styles.inputForm}
+            className="px-3 py-3 border-t border-gray-200 bg-gray-50 flex gap-2 dark:bg-[var(--ifm-card-background-color)] dark:border-gray-700"
             onSubmit={(e) => {
               e.preventDefault();
               handleSendMessage();
@@ -151,16 +170,15 @@ const RAGChatbot: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question..."
-              className={styles.inputField}
+              className="flex-1 bg-white border border-gray-300 rounded-full py-2.5 px-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 transition-all"
               disabled={isStreaming}
             />
             <button
-              type="button"
-              onClick={handleSendMessage}
-              className={styles.sendButton}
-              disabled={!input.trim() || !token || isStreaming}
+              type="submit"
+              className="bg-primary text-white border-none rounded-full w-10 h-10 cursor-pointer flex items-center justify-center font-semibold hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors dark:disabled:bg-gray-700"
+              disabled={!input.trim() || isStreaming}
             >
-              Send
+              →
             </button>
           </form>
         </div>
