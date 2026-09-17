@@ -345,6 +345,9 @@
   mask-size: contain;
   -webkit-mask-size: contain;
 }
+.navbar__item[href*="github"] svg.iconExternalLink_nPIU {
+  display: none !important;
+}
 
 /* Sidebar category icons */
 .sidebar-cat-server::before { content: '⚙️ '; }
