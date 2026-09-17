@@ -1,51 +1,22 @@
 import React, {type ReactNode} from 'react';
 import {useThemeConfig} from '@docusaurus/theme-common';
+import {ThemeClassNames} from '@docusaurus/theme-common';
+import FooterLayout from '@theme/Footer/Layout';
+import FooterLinks from '@theme/Footer/Links';
+import FooterLogo from '@theme/Footer/Logo';
+import FooterCopyright from '@theme/Footer/Copyright';
 
 export default function Footer(): ReactNode {
   const {
-    footer: {style, links, copyright, logo},
-  } = useThemeConfig() as any;
-
-  if (!links) {
-    throw new Error('footer links not found');
-  }
+    footer: {style, links, logo, copyright},
+  } = useThemeConfig();
 
   return (
-    <footer className="footer footer--dark">
-      <div className="container container-fluid">
-        <div className="row footer__links">
-          {links.map((column: any, i: number) => (
-            <div key={i} className={`col footer__col ${column.className ?? ''}`}>
-              <div className="footer__title">{column.title}</div>
-              <ul className="footer__items clean-list">
-                {column.items.map((item: any, j: number) => (
-                  <li key={j} className="footer__item">
-                    <a
-                      className="footer__link-item"
-                      href={item.href}
-                      {...(item.href?.startsWith('http')
-                        ? {target: '_blank', rel: 'noopener noreferrer'}
-                        : {})}>
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        {(logo || copyright) && (
-          <div className="footer__bottom text--center">
-            {logo && <div className="margin-bottom--sm">{logo}</div>}
-            {copyright && (
-              <div
-                className="footer__copyright"
-                dangerouslySetInnerHTML={{__html: copyright}}
-              />
-            )}
-          </div>
-        )}
-      </div>
-    </footer>
+    <FooterLayout
+      style={style}
+      links={<FooterLinks links={links} />}
+      logo={logo ? <FooterLogo logo={logo} /> : undefined}
+      copyright={<FooterCopyright copyright={copyright} />}
+    />
   );
 }
