@@ -48,7 +48,7 @@
     to { opacity: 1; transform: translateX(0) translateY(0); }
   }
   @keyframes textReveal {
-    from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+    from { opacity: 0; transform: translateY(12px); filter: blur(1px); }
     to { opacity: 1; transform: translateY(0); filter: blur(0); }
   }
   @keyframes tiltIn {
@@ -56,7 +56,7 @@
     to { opacity: 1; transform: perspective(800px) rotateY(0deg) translateY(0); }
   }
   @keyframes counterReveal {
-    from { opacity: 0; transform: scale(1.4); filter: blur(2px); }
+    from { opacity: 0; transform: scale(1.4); filter: blur(1px); }
     to { opacity: 1; transform: scale(1); filter: blur(0); }
   }
 
@@ -75,7 +75,7 @@
   --color-surface-code: oklch(18% 0.006 260);
   --color-surface-secondary: oklch(97.5% 0.003 260);
   --color-navbar: oklch(100% 0 0);
-  --color-footer-background: oklch(13% 0.005 260);
+  --color-footer-background: #060709;
 
   /* Borders */
   --color-border-subtle: oklch(91% 0.003 260);
@@ -195,9 +195,20 @@
   --color-brand-subtle: oklch(25% 0.06 265);
 }
 
+
+/* ── Hero background adapts to theme ────────────────────────── */
+.hero {
+  background: linear-gradient(to bottom right, var(--color-surface), var(--color-background), var(--color-surface));
+}
+[data-theme="dark"] .hero {
+  background: linear-gradient(to bottom right, var(--color-footer-background), var(--color-surface-code), var(--color-footer-background));
+}
+[data-theme="light"] .hero {
+  background: linear-gradient(to bottom right, var(--color-surface), var(--color-background), var(--color-surface));
+}
 /* ── Navbar overrides ────────────────────────────────────────────── */
 :root {
-  --ifm-navbar-height: 4rem;
+  --ifm-navbar-height: 3.5rem;
   --ifm-navbar-padding-horizontal: 1.25rem;
   --ifm-navbar-padding-vertical: 0;
 }
@@ -286,19 +297,18 @@
 
 /* ── Footer overrides ───────────────────────────────────────────── */
 .footer--dark {
-  --ifm-footer-background-color: var(--color-footer-background);
+  --ifm-footer-background-color: #060709;
   --ifm-footer-color: var(--color-on-dark);
   --ifm-footer-link-color: var(--color-on-dark-muted);
   --ifm-footer-link-hover-color: var(--color-on-dark);
-  --ifm-footer-padding-vertical: 3rem;
+  --ifm-footer-padding-vertical: 2rem;
   --ifm-footer-padding-horizontal: 1rem;
-  background-color: var(--color-footer-background);
-  margin-top: 4rem;
-  padding-top: 3.5rem;
+  background-color: #060709;
+  padding-top: 2rem;
 }
 [data-theme='dark'] .footer--dark {
-  --ifm-footer-background-color: oklch(10% 0.005 260);
-  background-color: oklch(10% 0.005 260);
+  --ifm-footer-background-color: #060709;
+  background-color: #060709;
 }
 
 .footer {
@@ -406,10 +416,10 @@
       transform: translateY(32px);
       animation: slideUp linear both;
       animation-timeline: view();
-      animation-range: entry 0% entry 100%;
+      animation-range: entry 10% cover 50%;
     }
     .scroll-reveal.range-cover {
-      animation-range: cover 0% cover 30%;
+      animation-range: cover 5% cover 50%;
     }
 
     /* ── Tilt-in reveal (perspective + rotateY) ── */
@@ -418,7 +428,7 @@
       transform: perspective(800px) rotateY(6deg) translateY(16px);
       animation: tiltIn linear both;
       animation-timeline: view();
-      animation-range: entry 0% entry 100%;
+      animation-range: entry 10% cover 50%;
     }
 
     /* ── Slide-in from left ── */
@@ -427,7 +437,7 @@
       transform: translateX(-32px) translateY(8px);
       animation: slideInLeft linear both;
       animation-timeline: view();
-      animation-range: entry 0% entry 100%;
+      animation-range: entry 10% cover 50%;
     }
 
     /* ── Scale-in reveal ── */
@@ -436,7 +446,7 @@
       transform: scale(0.92);
       animation: scaleIn linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 35%;
+      animation-range: entry 10% cover 50%;
     }
 
     /* ── Icon pop (child element) ── */
@@ -445,34 +455,34 @@
       transform: scale(0.4) rotate(-8deg);
       animation: iconPop 0.5s var(--ease-bounce) both;
       animation-timeline: view();
-      animation-range: entry 10% entry 100%;
+      animation-range: entry 10% cover 50%;
     }
 
     /* ── Text reveal with blur (child element) ── */
     .scroll-child-text {
       opacity: 0;
       transform: translateY(12px);
-      filter: blur(4px);
+      filter: blur(1px);
       animation: textReveal linear both;
       animation-timeline: view();
-      animation-range: entry 15% entry 100%;
+      animation-range: entry 10% cover 50%;
     }
 
     /* ── Counter/number reveal (child element) ── */
     .scroll-child-counter {
       opacity: 0;
       transform: scale(1.4);
-      filter: blur(2px);
+      filter: blur(1px);
       animation: counterReveal linear both;
       animation-timeline: view();
-      animation-range: entry 5% entry 100%;
+      animation-range: entry 10% cover 50%;
     }
 
     /* ── Stagger offsets for items in same row ── */
-    .scroll-stagger-1 { animation-range: entry 0% entry 100%; }
-    .scroll-stagger-2 { animation-range: entry 4% entry 100%; }
-    .scroll-stagger-3 { animation-range: entry 8% entry 100%; }
-    .scroll-stagger-4 { animation-range: entry 12% entry 100%; }
+    .scroll-stagger-1 { animation-range: entry 10% cover 50%; }
+    .scroll-stagger-2 { animation-range: entry 10% cover 50%; }
+    .scroll-stagger-3 { animation-range: entry 10% cover 50%; }
+    .scroll-stagger-4 { animation-range: entry 20% cover 50%; }
 
     /* ── Child element stagger (within a card) ── */
     .scroll-child-delay-1 { animation-delay: 0ms; }
@@ -492,21 +502,21 @@
       transform: scale(0.92);
       animation: scaleIn linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 30%;
+      animation-range: entry 10% cover 50%;
     }
     .scroll-cta-text {
       opacity: 0;
       transform: translateY(12px);
       animation: textReveal linear both;
       animation-timeline: view();
-      animation-range: entry 10% cover 35%;
+      animation-range: entry 10% cover 50%;
     }
     .scroll-cta-buttons {
       opacity: 0;
       transform: translateY(20px);
       animation: slideUp linear both;
       animation-timeline: view();
-      animation-range: entry 15% cover 40%;
+      animation-range: entry 10% cover 50%;
     }
   }
 }

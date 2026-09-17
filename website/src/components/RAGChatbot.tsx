@@ -16,6 +16,7 @@ const RAGChatbot: React.FC = () => {
   const [input, setInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -26,11 +27,15 @@ const RAGChatbot: React.FC = () => {
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
-    // Clear context when closing the chat
+    setIsExpanded(false);
     if (isOpen) {
       setSelectedText(null);
       setChapterId(null);
     }
+  };
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
   };
 
   const handleSendMessage = async () => {
@@ -50,7 +55,7 @@ const RAGChatbot: React.FC = () => {
         }
       }
 
-      console.log("Sending to backend:", body); // Log the request body
+      console.log("Sending to backend:", body);
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -72,7 +77,7 @@ const RAGChatbot: React.FC = () => {
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-        
+
         const chunk = decoder.decode(value);
         setChatHistory((prev) => {
           const lastMessage = prev[prev.length - 1];
@@ -89,45 +94,72 @@ const RAGChatbot: React.FC = () => {
     } finally {
       setIsStreaming(false);
       setSelectedText(null);
-      setChapterId(null); // Clear chapter context after sending
+      setChapterId(null);
     }
   };
 
   return (
     <div className="fixed bottom-6 right-6 z-[1000]">
-      {/* Chat Toggle Button */}
-      <button
-        className="w-14 h-14 rounded-full bg-brand text-brand-foreground border-none cursor-pointer shadow-lg flex items-center justify-center text-sm font-semibold transition-all duration-200 hover:bg-brand-hover hover:shadow-xl hover:scale-105 active:scale-95"
-        onClick={toggleChat}
-      >
-        {isOpen ? '✕' : 'Chat'}
-      </button>
+      {/* Chat Toggle Button — only shown when chat is closed */}
+        {!isOpen && (
+        <button
+          className="w-14 h-14 rounded-full bg-brand text-brand-foreground border-none cursor-pointer shadow-lg flex items-center justify-center text-sm font-semibold transition-all duration-200 hover:bg-brand-hover hover:shadow-xl hover:scale-105 active:scale-95"
+          onClick={toggleChat}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+          </svg>
+        </button>
+      )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="absolute bottom-20 right-0 w-[380px] h-[520px] max-h-[80vh] bg-surface rounded-lg shadow-2xl flex flex-col overflow-hidden border border-border-subtle">
+        <div
+          className={`${
+            isExpanded
+              ? 'fixed inset-0 w-full h-full max-w-none max-h-none rounded-none'
+              : 'absolute bottom-20 right-0 w-[calc(100vw-2rem)] max-w-[420px] h-[calc(100vh-12rem)] max-h-[650px]'
+          } bg-surface rounded-lg shadow-2xl flex flex-col overflow-hidden border border-border-subtle transition-all duration-300`}
+        >
           {/* Header */}
           <div className="px-4 py-3 border-b border-border-subtle flex justify-between items-center bg-surface-secondary">
             <h3 className="m-0 text-sm font-semibold text-text-primary">RAG Chatbot</h3>
-            <button 
-              onClick={toggleChat} 
-              className="w-7 h-7 rounded-full bg-transparent border-none text-text-muted cursor-pointer flex items-center justify-center text-lg hover:bg-surface-secondary transition-colors"
-            >
-              ×
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={toggleExpand}
+                className="w-7 h-7 rounded-full bg-transparent border-none text-text-muted cursor-pointer flex items-center justify-center hover:bg-surface-secondary transition-colors"
+                title={isExpanded ? 'Collapse' : 'Expand'}
+              >
+                {isExpanded ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                )}
+              </button>
+              <button
+                onClick={toggleChat}
+                className="w-7 h-7 rounded-full bg-transparent border-none text-text-muted cursor-pointer flex items-center justify-center hover:bg-surface-secondary transition-colors"
+                title="Close"
+              >
+                ×
+              </button>
+            </div>
           </div>
 
           {/* Messages Area */}
           <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3">
-            {/* Selected Text Context */}
             {selectedText && (
               <div className="bg-info-bg border border-info-border rounded-md p-3 text-xs text-info-text relative">
                 <p className="m-0 mb-2 font-medium">Context from selection:</p>
                 <p className="m-0 max-h-20 overflow-y-auto whitespace-pre-wrap break-words bg-surface p-2 rounded border border-border-subtle">
                   {selectedText}
                 </p>
-                <button 
-                  className="absolute top-2 right-2 bg-transparent border-none text-danger-text cursor-pointer text-xs px-2 py-1 rounded hover:bg-danger-bg transition-colors" 
+                <button
+                  className="absolute top-2 right-2 bg-transparent border-none text-danger-text cursor-pointer text-xs px-2 py-1 rounded hover:bg-danger-bg transition-colors"
                   onClick={() => setSelectedText(null)}
                 >
                   Clear
@@ -135,7 +167,6 @@ const RAGChatbot: React.FC = () => {
               </div>
             )}
 
-            {/* Chat Messages */}
             {chatHistory.map((msg, index) => (
               <div
                 key={index}
@@ -145,6 +176,19 @@ const RAGChatbot: React.FC = () => {
                     : 'bg-surface-secondary text-text-primary self-start rounded-md rounded-bl-sm border border-border-subtle'
                 } ${isStreaming && index === chatHistory.length - 1 ? 'animate-pulse-chat' : ''}`}
               >
+                {msg.sender === 'bot' && (
+                  <span className="inline-flex items-center gap-1.5 mb-1">
+                    <svg className="w-4 h-4 text-brand flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                      <path d="M12 8V4H8" />
+                      <rect width="16" height="12" x="4" y="8" rx="2" />
+                      <path d="M2 14h2" />
+                      <path d="M20 14h2" />
+                      <path d="M15 13v2" />
+                      <path d="M9 13v2" />
+                    </svg>
+                    <span className="font-semibold text-xs text-brand">Bot</span>
+                  </span>
+                )}
                 {isStreaming && msg.sender === 'bot' && msg.text === '' ? (
                   <div className="w-5 h-5 border-2 border-border-subtle border-t-brand rounded-full animate-spin"></div>
                 ) : (
@@ -178,7 +222,9 @@ const RAGChatbot: React.FC = () => {
               className="bg-brand text-brand-foreground border-none rounded-full w-10 h-10 cursor-pointer flex items-center justify-center font-semibold hover:bg-brand-hover disabled:bg-surface-secondary disabled:cursor-not-allowed transition-colors"
               disabled={!input.trim() || isStreaming}
             >
-              →
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+            </svg>
             </button>
           </form>
         </div>
