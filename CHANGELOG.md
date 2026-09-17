@@ -33,6 +33,26 @@
 - Homepage animations changed from time-based (`animate-[slideUp_0.35s_...]`) to scroll-triggered (`scroll-reveal` classes)
 - `AGENTS.md` updated with new skill references and project layout changes
 
+### Header & Footer Overhaul
+
+#### Added
+- Swizzled `Navbar/Layout`, `Navbar/Content`, `Navbar/Logo` from `@docusaurus/theme-classic`
+- Swizzled `Footer/index` — custom footer component using `useThemeConfig`
+- Navbar Infima variable overrides in `custom.css` (height, background, shadow, link colors, dark mode)
+- Footer Infima variable overrides in `custom.css` (background, text, link colors, typography, dark mode)
+- Navbar `.navbar__inner`, `.navbar__items`, `.navbar__link` Tailwind-friendly CSS rules (spacing, alignment, transitions)
+- Footer `.footer__link-item` inline-flex layout with gap for future icon support
+- Footer `.footer__bottom` border-top separator and copyright styling
+- Fixed pre-existing `inert` type error in `Navbar/MobileSidebar/Layout/index.tsx` (cast to `any`)
+
+#### Changed
+- Navbar uses design tokens: `--color-navbar`, `--color-border-subtle`, `--color-text-primary`, `--color-brand`, `--color-brand-subtle`
+- Footer uses design tokens: `--color-footer-background`, `--color-on-dark`, `--color-on-dark-muted`
+- Both header and footer respect dark mode via `[data-theme='dark']` overrides
+
+#### Removed
+- Default Infima navbar/footer hex colors replaced with OKLCH design tokens
+
 #### Removed
 - Zero `*.module.css` files remain (CSS Modules migration confirmed complete)
 - Zero hardcoded Tailwind color classes (`bg-gray-*`, `bg-blue-*`, `bg-red-*`, etc.) in components
