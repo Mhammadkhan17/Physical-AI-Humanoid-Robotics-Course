@@ -384,6 +384,11 @@
   display: none !important;
 }
 
+/* ── Doc page sidebar spacing ────────────────────────────────────── */
+.theme-doc-sidebar-container {
+  padding-left: 0.5rem;
+}
+
 /* Sidebar category icons */
 .sidebar-cat-server::before { content: '⚙️ '; }
 .sidebar-cat-monitor::before { content: '🖥️ '; }
