@@ -1,11 +1,10 @@
 import React, {type ReactNode} from 'react';
+import clsx from 'clsx';
 import {useColorMode, useThemeConfig} from '@docusaurus/theme-common';
 import ColorModeToggle from '@theme/ColorModeToggle';
 import type {Props} from '@theme/Navbar/ColorModeToggle';
-import styles from './styles.module.css';
 
 export default function NavbarColorModeToggle({className}: Props): ReactNode {
-  const navbarStyle = useThemeConfig().navbar.style;
   const {disableSwitch, respectPrefersColorScheme} = useThemeConfig().colorMode;
   const {colorModeChoice, setColorMode} = useColorMode();
 
@@ -14,14 +13,12 @@ export default function NavbarColorModeToggle({className}: Props): ReactNode {
   }
 
   return (
-    <ColorModeToggle
-      className={className}
-      buttonClassName={
-        navbarStyle === 'dark' ? styles.darkNavbarColorModeToggle : undefined
-      }
-      respectPrefersColorScheme={respectPrefersColorScheme}
-      value={colorModeChoice}
-      onChange={setColorMode}
-    />
+    <div className={clsx(className)} style={{width: '2rem', height: '2rem', flexShrink: 0}}>
+      <ColorModeToggle
+        respectPrefersColorScheme={respectPrefersColorScheme}
+        value={colorModeChoice}
+        onChange={setColorMode}
+      />
+    </div>
   );
 }
