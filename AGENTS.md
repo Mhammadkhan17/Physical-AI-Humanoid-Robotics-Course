@@ -100,6 +100,7 @@ Load these skills BEFORE working on the corresponding task. Use the `skill` tool
 | `writing-plans` | obra/superpowers | Before multi-step implementation tasks. Creates detailed plans with file structure and TDD cycles. |
 | `vercel-react-best-practices` | vercel-labs/agent-skills | When writing, reviewing, or refactoring React components. Covers perf, bundle size, re-renders. |
 | `frontend-design` | anthropics/skills | When building new UI or reshaping existing design. Provides aesthetic direction and typography guidance. |
+| `tailwind-production-design` | custom (project-local) | When writing or restyling any Tailwind CSS UI — color tokens, dark mode, a design-system pass, or a `DESIGN.md`. Forces a research-first process (understand → research → reason through color tokens → persist as `DESIGN.md` → implement) to avoid generic "AI-generated" styling. Only applies to Tailwind-based surfaces; the Docusaurus site's CSS Modules components are out of scope unless the project migrates a surface to Tailwind. |
 | `web-design-guidelines` | vercel-labs/agent-skills | When reviewing UI for accessibility, responsive design, and UX best practices. |
 | `fastapi` | fastapi/fastapi | When working with FastAPI routes, Pydantic models, dependencies, or SSE streaming. |
 | `langchain-rag` | langchain-ai/langchain-skills | When modifying the RAG pipeline — document loading, splitting, embeddings, vector store, or retrieval. |
@@ -115,10 +116,11 @@ Load these skills BEFORE working on the corresponding task. Use the `skill` tool
 1. **brainstorming** and **writing-plans** MUST be loaded before starting any new feature or significant change. No code without design approval.
 2. **systematic-debugging** MUST be loaded before proposing any fix. No fixes without root cause investigation.
 3. **vercel-react-best-practices** SHOULD be loaded when touching any React component in `website/src/`.
-4. **fastapi** SHOULD be loaded when touching any route or model in `backend/`.
-5. **langchain-rag** SHOULD be loaded when modifying `backend/chain.py`, `backend/gemini_retrieve.py`, or `backend/rag/`.
-6. **code-review** SHOULD be loaded before finalizing changes or creating PRs.
-7. **deploy-to-vercel** MUST be loaded before running any deployment commands.
+4. **tailwind-production-design** MUST be loaded before writing or editing any Tailwind class or Tailwind color/token config — no ad hoc utility classes or invented colors without going through its token-reasoning and `DESIGN.md` steps first. Load alongside `frontend-design` (aesthetic direction) and `web-design-guidelines` (accessibility/responsive review) rather than instead of them — they check different things.
+5. **fastapi** SHOULD be loaded when touching any route or model in `backend/`.
+6. **langchain-rag** SHOULD be loaded when modifying `backend/chain.py`, `backend/gemini_retrieve.py`, or `backend/rag/`.
+7. **code-review** SHOULD be loaded before finalizing changes or creating PRs.
+8. **deploy-to-vercel** MUST be loaded before running any deployment commands.
 
 ## Environment Variables (Required, Never Log These)
 

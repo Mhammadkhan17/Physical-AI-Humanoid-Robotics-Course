@@ -69,28 +69,26 @@ const features = [
 function HeroSection() {
   const {siteConfig} = useDocusaurusContext();
   return (
-    <header className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-      {/* Background pattern */}
+    <header className="relative overflow-hidden bg-gradient-to-br from-footer-background via-surface-code to-footer-background text-on-dark">
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px'}} />
       </div>
-      
       <div className="relative container py-20 md:py-28">
         <div className="max-w-3xl">
-          <Heading as="h1" className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+          <Heading as="h1" className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-[slideUp_0.35s_var(--ease-out)_both]">
             {siteConfig.title}
           </Heading>
-          <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl leading-relaxed">
+          <p className="text-lg md:text-xl text-on-dark-muted mb-8 max-w-2xl leading-relaxed animate-[slideUp_0.35s_var(--ease-out)_both] [animation-delay:50ms]">
             {siteConfig.tagline}
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 animate-[slideUp_0.35s_var(--ease-out)_both] [animation-delay:100ms]">
             <Link
-              className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-brand text-brand-foreground font-medium rounded-md hover:bg-brand-hover transition-colors"
               to="/docs/module-1-robotic-nervous-system/ros-nodes-topics-services">
               Start Learning
             </Link>
             <Link
-              className="inline-flex items-center px-6 py-3 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors border border-white/20"
+              className="inline-flex items-center px-6 py-3 bg-white/10 text-on-dark font-medium rounded-md hover:bg-white/20 transition-colors border border-white/20"
               to="/quiz">
               Placement Quiz
             </Link>
@@ -103,21 +101,21 @@ function HeroSection() {
 
 function FeaturesSection() {
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section className="py-16 bg-surface-secondary">
       <div className="container">
         <div className="text-center mb-12">
-          <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3">
+          <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3 scroll-reveal range-cover">
             Built for Learning
           </Heading>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, idx) => (
-            <div key={idx} className="p-6 bg-white rounded-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-              <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-primary/10 text-primary mb-4">
+            <div key={idx} className={`p-6 bg-surface rounded-md border border-border-subtle scroll-reveal scroll-stagger-${idx + 1}`}>
+              <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-brand-subtle text-brand mb-4 scroll-child-icon">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400">
+              <h3 className="text-lg font-semibold text-text-primary mb-2 scroll-child-text">{feature.title}</h3>
+              <p className="text-text-secondary text-sm leading-relaxed scroll-child-text scroll-child-delay-2">
                 {feature.description}
               </p>
             </div>
@@ -133,28 +131,28 @@ function ModulesSection() {
     <section className="py-16">
       <div className="container">
         <div className="text-center mb-12">
-          <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3">
+          <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3 scroll-reveal range-cover">
             Course Modules
           </Heading>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           {modules.map((module, idx) => (
             <Link key={idx} to={module.link} className="group block no-underline">
-              <div className="h-full p-6 bg-white rounded-xl border border-gray-200 transition-all duration-200 hover:shadow-lg hover:border-primary/30 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-primary/50">
+              <div className={`h-full p-6 bg-surface rounded-md border border-border-subtle transition-all duration-200 hover:shadow-sm hover:border-brand/30 hover:-translate-y-1 scroll-reveal-left scroll-stagger-${idx + 1}`}>
                 <div className="flex items-start gap-4">
-                  <span className="text-3xl font-bold text-primary/20 dark:text-primary/30">
+                  <span className="text-3xl font-bold text-brand/20 scroll-child-counter">
                     {module.number}
                   </span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary dark:text-gray-100 transition-colors">
+                      <h3 className="text-lg font-semibold text-text-primary group-hover:text-brand transition-colors scroll-child-text">
                         {module.title}
                       </h3>
-                      <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                      <span className="text-xs font-medium text-brand bg-brand-subtle px-2 py-0.5 rounded scroll-child-text scroll-child-delay-2">
                         {module.subtitle}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed m-0 dark:text-gray-400">
+                    <p className="text-text-secondary text-sm leading-relaxed m-0 scroll-child-text scroll-child-delay-3">
                       {module.description}
                     </p>
                   </div>
@@ -170,22 +168,22 @@ function ModulesSection() {
 
 function CTASection() {
   return (
-    <section className="py-16 bg-gradient-to-r from-primary to-primary-dark">
+    <section className="py-16 bg-brand-subtle">
       <div className="container text-center">
-        <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3 text-white">
+        <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3 text-brand scroll-cta-heading">
           Ready to Build Robots?
         </Heading>
-        <p className="text-white/80 mb-8 max-w-xl mx-auto">
+        <p className="text-text-secondary mb-8 max-w-xl mx-auto scroll-cta-text">
           Start with ROS 2 fundamentals or take the placement quiz to skip ahead.
         </p>
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-4 scroll-cta-buttons">
           <Link
-            className="inline-flex items-center px-6 py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-brand text-brand-foreground font-medium rounded-md hover:bg-brand-hover transition-colors"
             to="/docs/module-1-robotic-nervous-system/ros-nodes-topics-services">
             Begin Module 1
           </Link>
           <Link
-            className="inline-flex items-center px-6 py-3 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors border border-white/30"
+            className="inline-flex items-center px-6 py-3 bg-transparent text-brand font-medium rounded-md hover:bg-brand/10 transition-colors border border-brand/30"
             to="/quiz">
             Placement Quiz
           </Link>

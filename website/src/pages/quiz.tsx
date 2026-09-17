@@ -44,12 +44,12 @@ const QuizPage: React.FC = () => {
 
   return (
     <Layout title="Background Quiz" description="Answer a few questions to personalize your experience.">
-      <main style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-        <h1>Background Quiz</h1>
-        <p>Please answer a few questions to help us personalize your learning experience.</p>
+      <main className="p-5 max-w-2xl mx-auto">
+        <h1 className="text-text-primary">Background Quiz</h1>
+        <p className="text-text-secondary">Please answer a few questions to help us personalize your learning experience.</p>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="pythonExp">Python Experience (0-5): </label>
+          <div className="mb-4">
+            <label htmlFor="pythonExp" className="block text-text-primary text-sm font-medium mb-1">Python Experience (0-5):</label>
             <input
               type="number"
               id="pythonExp"
@@ -57,12 +57,13 @@ const QuizPage: React.FC = () => {
               max="5"
               value={pythonExp}
               onChange={(e) => setPythonExp(parseInt(e.target.value))}
+              className="w-full bg-surface-input border border-border-subtle rounded-sm px-3 py-2 text-sm text-text-primary focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition-all"
               required
             />
           </div>
 
-          <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="rosExp">ROS Experience (0-5): </label>
+          <div className="mb-4">
+            <label htmlFor="rosExp" className="block text-text-primary text-sm font-medium mb-1">ROS Experience (0-5):</label>
             <input
               type="number"
               id="rosExp"
@@ -70,48 +71,52 @@ const QuizPage: React.FC = () => {
               max="5"
               value={rosExp}
               onChange={(e) => setRosExp(parseInt(e.target.value))}
+              className="w-full bg-surface-input border border-border-subtle rounded-sm px-3 py-2 text-sm text-text-primary focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition-all"
               required
             />
           </div>
 
-          <div style={{ marginBottom: '15px' }}>
-            <label>
+          <div className="mb-4">
+            <label className="flex items-center gap-2 text-text-primary text-sm cursor-pointer">
               <input
                 type="checkbox"
                 checked={hasGpu}
                 onChange={(e) => setHasGpu(e.target.checked)}
+                className="accent-brand"
               />
               Do you have access to a GPU?
             </label>
           </div>
 
-          <div style={{ marginBottom: '15px' }}>
-            <label>
+          <div className="mb-4">
+            <label className="flex items-center gap-2 text-text-primary text-sm cursor-pointer">
               <input
                 type="checkbox"
                 checked={hasJetson}
                 onChange={(e) => setHasJetson(e.target.checked)}
+                className="accent-brand"
               />
               Do you have a NVIDIA Jetson device?
             </label>
           </div>
 
-          <div style={{ marginBottom: '15px' }}>
-            <label>
+          <div className="mb-4">
+            <label className="flex items-center gap-2 text-text-primary text-sm cursor-pointer">
               <input
                 type="checkbox"
                 checked={hasRobotAccess}
                 onChange={(e) => setHasRobotAccess(e.target.checked)}
+                className="accent-brand"
               />
               Do you have access to a physical robot?
             </label>
           </div>
 
-          <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+          <button type="submit" className="px-5 py-2.5 bg-brand text-brand-foreground border-none rounded-sm cursor-pointer font-medium hover:bg-brand-hover transition-colors">
             Submit Quiz
           </button>
         </form>
-        {message && <p>{message}</p>}
+        {message && <p className="mt-4 text-text-secondary text-sm">{message}</p>}
       </main>
     </Layout>
   );

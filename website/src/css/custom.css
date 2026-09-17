@@ -5,27 +5,274 @@
 
 @theme {
   --font-sans: 'Poppins', sans-serif;
+
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-snappy: 200ms;
+  --duration-smooth: 350ms;
+  --duration-deliberate: 600ms;
+
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes iconPop {
+    0% { opacity: 0; transform: scale(0.4) rotate(-8deg); }
+    60% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-32px) translateY(8px); }
+    to { opacity: 1; transform: translateX(0) translateY(0); }
+  }
+  @keyframes textReveal {
+    from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  @keyframes tiltIn {
+    from { opacity: 0; transform: perspective(800px) rotateY(6deg) translateY(16px); }
+    to { opacity: 1; transform: perspective(800px) rotateY(0deg) translateY(0); }
+  }
+  @keyframes counterReveal {
+    from { opacity: 0; transform: scale(1.4); filter: blur(2px); }
+    to { opacity: 1; transform: scale(1); filter: blur(0); }
+  }
+
+  /* Brand */
+  --color-brand: oklch(62% 0.19 265);
+  --color-brand-hover: oklch(55% 0.20 265);
+  --color-brand-pressed: oklch(48% 0.20 265);
+  --color-brand-foreground: oklch(100% 0 0);
+  --color-brand-subtle: oklch(96% 0.04 265);
+
+  /* Surface */
+  --color-background: oklch(98.5% 0.002 260);
+  --color-surface: oklch(100% 0 0);
+  --color-surface-elevated: oklch(100% 0 0);
+  --color-surface-input: oklch(97% 0.002 260);
+  --color-surface-code: oklch(18% 0.006 260);
+  --color-surface-secondary: oklch(97.5% 0.003 260);
+  --color-navbar: oklch(100% 0 0);
+  --color-footer-background: oklch(13% 0.005 260);
+
+  /* Borders */
+  --color-border-subtle: oklch(91% 0.003 260);
+  --color-border-strong: oklch(82% 0.005 260);
+
+  /* Text */
+  --color-text-primary: oklch(18% 0.01 260);
+  --color-text-secondary: oklch(42% 0.01 260);
+  --color-text-muted: oklch(58% 0.008 260);
+  --color-on-dark: oklch(95% 0.005 260);
+  --color-on-dark-muted: oklch(72% 0.008 260);
+
+  /* Semantic - Success */
+  --color-success-bg: oklch(96% 0.04 145);
+  --color-success-border: oklch(88% 0.08 145);
+  --color-success-text: oklch(35% 0.12 145);
+  --color-success-dark-bg: oklch(22% 0.04 145);
+  --color-success-dark-border: oklch(30% 0.08 145);
+  --color-success-dark-text: oklch(75% 0.10 145);
+
+  /* Semantic - Warning */
+  --color-warning-bg: oklch(96% 0.05 75);
+  --color-warning-border: oklch(88% 0.10 75);
+  --color-warning-text: oklch(40% 0.12 75);
+  --color-warning-dark-bg: oklch(24% 0.05 75);
+  --color-warning-dark-border: oklch(32% 0.10 75);
+  --color-warning-dark-text: oklch(78% 0.10 75);
+
+  /* Semantic - Danger */
+  --color-danger-bg: oklch(96% 0.04 25);
+  --color-danger-border: oklch(88% 0.08 25);
+  --color-danger-text: oklch(38% 0.14 25);
+  --color-danger-dark-bg: oklch(22% 0.04 25);
+  --color-danger-dark-border: oklch(30% 0.08 25);
+  --color-danger-dark-text: oklch(75% 0.12 25);
+
+  /* Semantic - Info */
+  --color-info-bg: oklch(96% 0.04 250);
+  --color-info-border: oklch(88% 0.08 250);
+  --color-info-text: oklch(38% 0.12 250);
+  --color-info-dark-bg: oklch(22% 0.04 250);
+  --color-info-dark-border: oklch(30% 0.08 250);
+  --color-info-dark-text: oklch(75% 0.10 250);
 }
 
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-color-primary: oklch(62% 0.19 265);
+  --ifm-color-primary-dark: oklch(55% 0.20 265);
+  --ifm-color-primary-darker: oklch(48% 0.20 265);
+  --ifm-color-primary-darkest: oklch(38% 0.20 265);
+  --ifm-color-primary-light: oklch(68% 0.17 265);
+  --ifm-color-primary-lighter: oklch(72% 0.15 265);
+  --ifm-color-primary-lightest: oklch(82% 0.10 265);
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
+  --ifm-color-primary: oklch(72% 0.15 265);
+  --ifm-color-primary-dark: oklch(65% 0.16 265);
+  --ifm-color-primary-darker: oklch(58% 0.17 265);
+  --ifm-color-primary-darkest: oklch(48% 0.20 265);
+  --ifm-color-primary-light: oklch(78% 0.12 265);
+  --ifm-color-primary-lighter: oklch(82% 0.10 265);
+  --ifm-color-primary-lightest: oklch(90% 0.05 265);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Sidebar category icons */
+.sidebar-cat-server::before { content: '⚙️ '; }
+.sidebar-cat-monitor::before { content: '🖥️ '; }
+.sidebar-cat-layers::before { content: '🧠 '; }
+.sidebar-cat-puzzle::before { content: '🧩 '; }
+
+/* ── Scroll-triggered animations ────────────────────────────────── */
+/* Base state: elements hidden before scroll trigger (progressive enhancement) */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+
+    /* ── Fade-up reveal ── */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      animation: slideUp linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+    .scroll-reveal.range-cover {
+      animation-range: cover 0% cover 30%;
+    }
+
+    /* ── Tilt-in reveal (perspective + rotateY) ── */
+    .scroll-reveal-tilt {
+      opacity: 0;
+      transform: perspective(800px) rotateY(6deg) translateY(16px);
+      animation: tiltIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+
+    /* ── Slide-in from left ── */
+    .scroll-reveal-left {
+      opacity: 0;
+      transform: translateX(-32px) translateY(8px);
+      animation: slideInLeft linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+
+    /* ── Scale-in reveal ── */
+    .scroll-reveal-scale {
+      opacity: 0;
+      transform: scale(0.92);
+      animation: scaleIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+
+    /* ── Icon pop (child element) ── */
+    .scroll-child-icon {
+      opacity: 0;
+      transform: scale(0.4) rotate(-8deg);
+      animation: iconPop 0.5s var(--ease-bounce) both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 100%;
+    }
+
+    /* ── Text reveal with blur (child element) ── */
+    .scroll-child-text {
+      opacity: 0;
+      transform: translateY(12px);
+      filter: blur(4px);
+      animation: textReveal linear both;
+      animation-timeline: view();
+      animation-range: entry 15% entry 100%;
+    }
+
+    /* ── Counter/number reveal (child element) ── */
+    .scroll-child-counter {
+      opacity: 0;
+      transform: scale(1.4);
+      filter: blur(2px);
+      animation: counterReveal linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 100%;
+    }
+
+    /* ── Stagger offsets for items in same row ── */
+    .scroll-stagger-1 { animation-range: entry 0% entry 100%; }
+    .scroll-stagger-2 { animation-range: entry 4% entry 100%; }
+    .scroll-stagger-3 { animation-range: entry 8% entry 100%; }
+    .scroll-stagger-4 { animation-range: entry 12% entry 100%; }
+
+    /* ── Child element stagger (within a card) ── */
+    .scroll-child-delay-1 { animation-delay: 0ms; }
+    .scroll-child-delay-2 { animation-delay: 80ms; }
+    .scroll-child-delay-3 { animation-delay: 160ms; }
+
+    /* ── Hero parallax ── */
+    .scroll-parallax {
+      animation: slideUp linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0px 500px;
+    }
+
+    /* ── CTA section layered reveal ── */
+    .scroll-cta-heading {
+      opacity: 0;
+      transform: scale(0.92);
+      animation: scaleIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+    .scroll-cta-text {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: textReveal linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 35%;
+    }
+    .scroll-cta-buttons {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideUp linear both;
+      animation-timeline: view();
+      animation-range: entry 15% cover 40%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

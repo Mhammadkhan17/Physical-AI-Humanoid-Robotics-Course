@@ -158,14 +158,14 @@ export default function DocItemWrapper(props) {
       {/* Action Buttons */}
       <div className="flex items-center justify-end gap-3 mb-6">
         <button
-          className="px-4 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-brand text-brand-foreground font-medium rounded-md hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handlePersonalize}
           disabled={isLoadingPersonalize}
         >
           {isLoadingPersonalize ? 'Personalizing...' : 'Personalize this chapter'}
         </button>
         <button
-          className="px-4 py-2 border-2 border-primary text-primary font-medium rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 border-2 border-brand text-brand font-medium rounded-md hover:bg-brand-subtle transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleTranslate}
           disabled={isLoadingTranslate}
         >
@@ -175,32 +175,33 @@ export default function DocItemWrapper(props) {
 
       {/* Error Messages */}
       {errorPersonalize && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+        <div className="bg-danger-bg border border-danger-border text-danger-text px-4 py-3 rounded-md mb-4 text-sm dark:bg-danger-dark-bg dark:border-danger-dark-border dark:text-danger-dark-text">
           {errorPersonalize}
         </div>
       )}
       {errorTranslate && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+        <div className="bg-danger-bg border border-danger-border text-danger-text px-4 py-3 rounded-md mb-4 text-sm dark:bg-danger-dark-bg dark:border-danger-dark-border dark:text-danger-dark-text">
           {errorTranslate}
         </div>
       )}
 
       {/* Personalization Banner */}
       {personalizedContent && (
-        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-5 text-sm dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300">
+        <div className="bg-info-bg border border-info-border text-info-text px-4 py-3 rounded-md mb-5 text-sm dark:bg-info-dark-bg dark:border-info-dark-border dark:text-info-dark-text">
           This chapter has been personalized for your experience level.
         </div>
       )}
 
       {/* Main Content */}
       {displayContent ? (
-        <ReactMarkdown
-          style={showTranslated ? { fontFamily: "'Noto Nastaliq Urdu', serif", direction: 'rtl', lineHeight: '3em' } : undefined}
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeRaw]}
-        >
-          {displayContent}
-        </ReactMarkdown>
+        <div style={showTranslated ? { fontFamily: "'Noto Nastaliq Urdu', serif", direction: 'rtl', lineHeight: '3em' } : undefined}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+          >
+            {displayContent}
+          </ReactMarkdown>
+        </div>
       ) : (
         <div ref={contentRef}>
           <DocItem {...props} />
@@ -210,7 +211,7 @@ export default function DocItemWrapper(props) {
       {/* Floating Ask AI Button */}
       {showAskAiButton && selectedText && (
         <button
-          className="fixed z-[1001] px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg shadow-lg hover:bg-primary-dark transition-colors"
+          className="fixed z-[1001] px-4 py-2 bg-brand text-brand-foreground text-sm font-medium rounded-md shadow-lg hover:bg-brand-hover transition-colors"
           style={{ left: askAiButtonPosition.x, top: askAiButtonPosition.y }}
           onClick={handleAskAiClick}
         >

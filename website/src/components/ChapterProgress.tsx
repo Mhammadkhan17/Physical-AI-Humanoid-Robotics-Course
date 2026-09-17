@@ -23,7 +23,7 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId }) => {
 
   return (
     <div
-      className="fixed top-0 left-0 h-1 bg-gradient-to-r from-primary to-primary-light z-[9999] transition-all duration-150 ease-out"
+      className="fixed top-0 left-0 h-1 bg-gradient-to-r from-brand to-brand-hover z-[9999] transition-all duration-150 ease-out"
       style={{ width: `${progress}%` }}
     />
   );

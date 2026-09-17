@@ -101,6 +101,7 @@ const config: Config = {
     },
     navbar: {
       title: 'Physical AI & Humanoid Robotics',
+      hideOnScroll: true,
       items: [
         {
           type: 'docSidebar',
