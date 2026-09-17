@@ -121,6 +121,41 @@
   --color-info-dark-text: oklch(75% 0.10 250);
 }
 
+/* ── Infima grid restoration ─────────────────────────────────────── */
+/* Tailwind v4 @layer base preflight overrides Infima's grid (which is in
+   the weaker @layer docusaurus.infima). These unlayered rules restore the
+   original Infima grid behavior so doc page sidebars position correctly. */
+.container {
+  max-width: var(--ifm-container-width);
+  margin: 0 auto;
+  padding: 0 var(--ifm-spacing-horizontal);
+  width: 100%;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 calc(var(--ifm-spacing-horizontal) * -1);
+}
+.col {
+  --ifm-col-width: 100%;
+  flex: 1 0;
+  margin-left: 0;
+  max-width: var(--ifm-col-width);
+  padding: 0 var(--ifm-spacing-horizontal);
+  width: 100%;
+}
+.col[class*='col--'] {
+  flex: 0 0 var(--ifm-col-width);
+}
+.col--3 {
+  --ifm-col-width: calc(3 / 12 * 100%);
+}
+@media (min-width: 64rem) {
+  .container {
+    max-width: var(--ifm-container-width-xl, 1320px);
+  }
+}
+
 :root {
   --ifm-color-primary: oklch(62% 0.19 265);
   --ifm-color-primary-dark: oklch(55% 0.20 265);
