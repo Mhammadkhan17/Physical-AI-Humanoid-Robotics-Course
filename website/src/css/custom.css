@@ -142,23 +142,46 @@
   --ifm-color-primary-lighter: oklch(82% 0.10 265);
   --ifm-color-primary-lightest: oklch(90% 0.05 265);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+
+  /* Surface */
+  --color-background: oklch(14% 0.006 260);
+  --color-surface: oklch(18% 0.006 260);
+  --color-surface-elevated: oklch(22% 0.006 260);
+  --color-surface-input: oklch(20% 0.006 260);
+  --color-surface-code: oklch(12% 0.005 260);
+  --color-surface-secondary: oklch(16% 0.006 260);
+  --color-border-subtle: oklch(28% 0.008 260);
+  --color-border-strong: oklch(38% 0.008 260);
+
+  /* Text — reversed for dark backgrounds */
+  --color-text-primary: oklch(95% 0.003 260);
+  --color-text-secondary: oklch(80% 0.006 260);
+  --color-text-muted: oklch(62% 0.008 260);
+  --color-brand-subtle: oklch(25% 0.06 265);
 }
 
 /* ── Navbar overrides ────────────────────────────────────────────── */
 :root {
   --ifm-navbar-height: 4rem;
-  --ifm-navbar-background-color: var(--color-navbar);
-  --ifm-navbar-shadow: 0 1px 0 0 var(--color-border-subtle);
   --ifm-navbar-padding-horizontal: 1.25rem;
   --ifm-navbar-padding-vertical: 0;
+}
+
+/* Light mode navbar */
+.navbar {
+  background-color: var(--color-surface);
+  box-shadow: 0 1px 0 0 var(--color-border-subtle);
   --ifm-navbar-link-color: var(--color-text-primary);
   --ifm-navbar-link-hover-color: var(--color-brand);
 }
-[data-theme='dark'] {
-  --ifm-navbar-background-color: oklch(15% 0.005 260);
-  --ifm-navbar-shadow: 0 1px 0 0 oklch(25% 0.005 260);
+
+/* Dark mode navbar — applied when isDarkTheme is true */
+.navbar--dark {
+  background-color: var(--color-footer-background);
+  box-shadow: 0 1px 0 0 oklch(25% 0.005 260);
   --ifm-navbar-link-color: var(--color-on-dark);
   --ifm-navbar-link-hover-color: var(--color-brand);
+  color: var(--color-on-dark);
 }
 
 .navbar__inner {
@@ -186,8 +209,14 @@
   transition: color var(--duration-fast) var(--ease-standard),
               background-color var(--duration-fast) var(--ease-standard);
 }
+.navbar__brand,
 .navbar__link {
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+.navbar--dark .navbar__brand,
+.navbar--dark .navbar__link {
+  color: var(--color-on-dark);
 }
 .navbar__link:hover,
 .navbar__link--active {
@@ -200,7 +229,6 @@
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 700;
-  color: var(--color-text-primary);
   text-decoration: none;
   margin-right: 1.5rem;
 }
@@ -222,16 +250,20 @@
 }
 
 /* ── Footer overrides ───────────────────────────────────────────── */
-:root {
+.footer--dark {
   --ifm-footer-background-color: var(--color-footer-background);
-  --ifm-footer-color: var(--color-on-dark-muted);
+  --ifm-footer-color: var(--color-on-dark);
   --ifm-footer-link-color: var(--color-on-dark-muted);
   --ifm-footer-link-hover-color: var(--color-on-dark);
-  --ifm-footer-padding-vertical: 2.5rem;
+  --ifm-footer-padding-vertical: 3rem;
   --ifm-footer-padding-horizontal: 1rem;
+  background-color: var(--color-footer-background);
+  margin-top: 4rem;
+  padding-top: 3.5rem;
 }
-[data-theme='dark'] {
+[data-theme='dark'] .footer--dark {
   --ifm-footer-background-color: oklch(10% 0.005 260);
+  background-color: oklch(10% 0.005 260);
 }
 
 .footer {

@@ -75,7 +75,7 @@ function HeroSection() {
       </div>
       <div className="relative container py-20 md:py-28">
         <div className="max-w-3xl">
-          <Heading as="h1" className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-[slideUp_0.35s_var(--ease-out)_both]">
+          <Heading as="h1" className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-on-dark animate-[slideUp_0.35s_var(--ease-out)_both]">
             {siteConfig.title}
           </Heading>
           <p className="text-lg md:text-xl text-on-dark-muted mb-8 max-w-2xl leading-relaxed animate-[slideUp_0.35s_var(--ease-out)_both] [animation-delay:50ms]">
@@ -104,7 +104,7 @@ function FeaturesSection() {
     <section className="py-16 bg-surface-secondary">
       <div className="container">
         <div className="text-center mb-12">
-          <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3 scroll-reveal range-cover">
+          <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3 text-text-primary scroll-reveal range-cover">
             Built for Learning
           </Heading>
         </div>
@@ -131,7 +131,7 @@ function ModulesSection() {
     <section className="py-16">
       <div className="container">
         <div className="text-center mb-12">
-          <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3 scroll-reveal range-cover">
+          <Heading as="h2" className="text-2xl md:text-3xl font-bold mb-3 text-text-primary scroll-reveal range-cover">
             Course Modules
           </Heading>
         </div>

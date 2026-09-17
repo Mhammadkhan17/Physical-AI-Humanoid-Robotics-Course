@@ -5,6 +5,7 @@ import {
   useHideableNavbar,
   useNavbarMobileSidebar,
 } from '@docusaurus/theme-common/internal';
+import {useColorMode} from '@docusaurus/theme-common';
 import {translate} from '@docusaurus/Translate';
 import NavbarMobileSidebar from '@theme/Navbar/MobileSidebar';
 import type {Props} from '@theme/Navbar/Layout';
@@ -23,8 +24,9 @@ function NavbarBackdrop(props: ComponentProps<'div'>) {
 
 export default function NavbarLayout({children}: Props): ReactNode {
   const {
-    navbar: {hideOnScroll, style},
+    navbar: {hideOnScroll},
   } = useThemeConfig();
+  const {isDarkTheme} = useColorMode();
   const mobileSidebar = useNavbarMobileSidebar();
   const {navbarRef, isNavbarVisible} = useHideableNavbar(hideOnScroll);
   return (
@@ -44,8 +46,7 @@ export default function NavbarLayout({children}: Props): ReactNode {
           !isNavbarVisible && styles.navbarHidden,
         ],
         {
-          'navbar--dark': style === 'dark',
-          'navbar--primary': style === 'primary',
+          'navbar--dark': isDarkTheme,
           'navbar-sidebar--show': mobileSidebar.shown,
         },
       )}>
