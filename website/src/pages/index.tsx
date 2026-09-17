@@ -69,11 +69,11 @@ const features = [
 function HeroSection() {
   const {siteConfig} = useDocusaurusContext();
   return (
-    <header className="relative overflow-hidden bg-gradient-to-br from-footer-background via-surface-code to-footer-background text-on-dark my-8">
+    <header className="relative overflow-hidden bg-gradient-to-br from-footer-background via-surface-code to-footer-background text-on-dark">
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px'}} />
       </div>
-        <div className="relative container py-20 md:py-28">
+        <div className="relative container py-24 md:py-32">
         <div className="max-w-3xl">
           <Heading as="h1" className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-on-dark animate-[slideUp_0.35s_var(--ease-out)_both]">
             {siteConfig.title}
