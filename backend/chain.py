@@ -47,9 +47,10 @@ def create_rag_chain(selected_text: str = None, chapter_id: str = None):
 
     INSTRUCTIONS:
     1. Look at the 'TEXTBOOK CONTEXT' provided. Does it contain a direct explanation of '{selected_text}'?
-    2. If YES: Explain it using the textbook's specific wording and examples.
+    2. If YES: Quote the textbook directly where possible. Use the exact wording and examples from the context.
     3. If NO: Look at the 'USER'S HIGHLIGHTED TEXT' itself. If the definition is common knowledge in ROS 2 (like Nodes), explain it clearly using your expertise, but explicitly start by saying: "While the retrieved excerpts focus on [Subject of Context], here is a general explanation of {selected_text}..."
     4. Ensure you mention specific ROS 2 concepts like 'rclpy', 'executables', and 'graph' if they are in the context.
+    5. If the question is short or simple (like "What does this mean?"), give a brief 1-2 sentence answer. Only go into detail if the question asks for it.
 
     Question: {question}
     Answer:"""
