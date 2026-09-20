@@ -27,3 +27,15 @@ backend/rag/retrieve.py
 backend/requirements-ingest.txt
 .vercel
 .env*.local
+
+# ONNX model (87MB - download at runtime)
+backend/models/all-MiniLM-L6-v2/onnx/model.onnx
+backend/models/all-MiniLM-L6-v2/onnx/model.onnx_data
+
+# HuggingFace cache
+backend/models/models--qdrant--all-MiniLM-L6-v2-onnx/
+backend/models/.locks/
+backend/models/CACHEDIR.TAG
+
+# Qdrant runtime data
+qdrant_storage/
