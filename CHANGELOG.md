@@ -39,29 +39,54 @@ All notable changes to the Physical AI & Humanoid Robotics project.
 - **Updated `backend/chain.py`**
   - Switched import from `gemini_retrieve` to `local_retrieve`
   - Retrieval is now fully local (no cloud Qdrant dependency)
+  - Migrated from `ChatGoogleGenerativeAI` to `ChatOpenAI` (OpenRouter compatible)
+  - Added OpenRouter attribution headers (`HTTP-Referer`, `X-Title`)
+  - Improved prompt template: direct quoting from textbook, concise answers for simple questions
+
+- **Updated `backend/app.py`**
+  - Replaced all `ChatGoogleGenerativeAI` instances with `ChatOpenAI`
+  - Added `OPENROUTER_API_KEY` validation in personalize/translate endpoints
+  - Added OpenRouter attribution headers to all LLM endpoints
+  - Fixed chapter_id handling: no longer strips full path (passes as-is to retriever)
 
 - **Updated `backend/requirements.txt`**
   - Added `onnxruntime`, `tokenizers`, `numpy` for local embeddings
   - Added `langchain-community`, `langchain-text-splitters`
+  - Migrated from `langchain-google-genai` to `langchain-openai`
   - Pinned all package versions
   - Organized by category with comments
 
 ### Removed
 
+- **Deleted `backend/main.py`**
+  - Original placeholder stub with hardcoded responses
+  - `app.py` is the only FastAPI entry point
+
+- **Commented out legacy Gemini files**
+  - `backend/gemini_retrieve.py` - Cloud Qdrant + Gemini embeddings (deprecated)
+  - `backend/rag/gemini_ingest.py` - Cloud ingestion script (already commented out)
+
+- **Removed Gemini/Google Packages**
+  - `langchain-google-genai` - Replaced by `langchain-openai`
+  - `google-generativeai` - No longer needed
+  - `google-ai-generativelanguage` - No longer needed
+  - `google-auth`, `google-api-core`, `google-api-python-client` - No longer needed
+  - `proto-plus`, `protobuf`, `grpcio`, `grpcio-status` - No longer needed
+
 - **Unused Packages**
   - `fastembed` - Replaced by custom ONNX embeddings
-  - `langchain-openai` - Not used in codebase
-  - `openai` - Not used in codebase
-  - `tiktoken` - Not used in codebase
-  - `grpcio-status` - Transitive dependency (re-added as needed)
-  - `pillow` - Not required
-  - `loguru` - Not required
-  - `mmh3` - Not required
-  - `py_rust_stemmers` - Not required
-  - `regex` - Not required
-  - `jiter` - Not required
+  - `pillow`, `loguru`, `mmh3`, `py_rust_stemmers`, `regex`, `jiter` - Not required
 
 ### Fixed
+
+- **Chapter ID Mismatch** (`backend/local_ingest.py`)
+  - `derive_chapter_id` now strips numeric prefixes (`02-`, `01-`) from filenames
+  - Matches Docusaurus page ID format (e.g., `module-2-digital-twin/rendering-in-unity`)
+  - Re-ingested all 114 chunks with corrected chapter_ids
+
+- **Chapter ID Stripping** (`backend/app.py`)
+  - Removed `.split('/')[-1]` that was stripping the full chapter path
+  - Now passes full chapter_id to retriever (e.g., `module-3-ai-robot-brain/isaac-ros-vslam`)
 
 - **Mean Pooling Bug** (`backend/local_embeddings.py`)
   - Fixed mask expansion shape (was `(-1, 1)`, now `(seq_len, 1)`)
@@ -84,7 +109,18 @@ All notable changes to the Physical AI & Humanoid Robotics project.
 
 ## Migration Notes
 
-### From Cloud to Local
+### From Gemini to OpenRouter
+
+**Before:**
+- Gemini API direct (`ChatGoogleGenerativeAI`)
+- Required: `GEMINI_API_KEY`
+
+**After:**
+- OpenRouter API (`ChatOpenAI` with OpenAI-compatible endpoint)
+- Required: `OPENROUTER_API_KEY` (get yours at https://openrouter.ai/settings/keys)
+- Model: `google/gemini-2.5-flash` via OpenRouter
+
+### From Cloud to Local (Embeddings)
 
 **Before:**
 - Qdrant Cloud (remote) + Gemini Embeddings (API)
@@ -92,7 +128,7 @@ All notable changes to the Physical AI & Humanoid Robotics project.
 
 **After:**
 - Qdrant Docker (local) + ONNX Embeddings (local)
-- Required: Only `GEMINI_API_KEY` for LLM chat responses
+- Required: Only `OPENROUTER_API_KEY` for LLM chat responses
 - Embeddings are fully offline
 
 ### Quick Start
@@ -104,7 +140,7 @@ docker start qdrant-local
 # Ingest documents
 cd backend && python local_ingest.py
 
-# Run API (still needs Gemini for LLM)
+# Run API (needs OpenRouter API key)
 uvicorn app:app --reload
 ```
 
