@@ -1,65 +1,122 @@
 # Changelog
 
-## [Unreleased]
+All notable changes to the Physical AI & Humanoid Robotics project.
 
-### Design System Audit — Tailwind CSS Migration
+## [Unreleased] - 2026-09-20
 
-#### Added
-- `DESIGN.md` — full token system with OKLCH values, component specs, responsive behavior, do's/don'ts, and iteration guide
-- `docs/superpowers/plans/2026-09-17-tailwind-design-system-audit.md` — 10-task implementation plan
-- 40+ semantic design tokens in `custom.css` `@theme` block:
-  - Brand: `brand`, `brand-hover`, `brand-pressed`, `brand-foreground`, `brand-subtle`
-  - Surface: `background`, `surface`, `surface-elevated`, `surface-input`, `surface-code`, `surface-secondary`, `navbar`, `footer-background`
-  - Border: `border-subtle`, `border-strong`
-  - Text: `text-primary`, `text-secondary`, `text-muted`, `on-dark`, `on-dark-muted`
-  - Semantic: `success`, `warning`, `danger`, `info` (bg/border/text variants for light + dark)
-- Infima CSS variables updated to match OKLCH token values (light + dark mode)
-- Scroll-triggered card animations (CSS `animation-timeline: view()`, no JavaScript):
-  - 6 new keyframes: `iconPop`, `slideInLeft`, `textReveal`, `tiltIn`, `counterReveal`
-  - 15+ animation classes: `scroll-reveal`, `scroll-reveal-tilt`, `scroll-reveal-left`, `scroll-reveal-scale`, `scroll-child-icon`, `scroll-child-text`, `scroll-child-counter`, `scroll-stagger-1` through `scroll-stagger-4`, `scroll-child-delay-1/2/3`, `scroll-parallax`, `scroll-cta-heading`, `scroll-cta-text`, `scroll-cta-buttons`
-  - Progressive enhancement via `@supports (animation-timeline: scroll())` guard
-  - Accessibility via `@media (prefers-reduced-motion: no-preference)` wrapper
-- `InfoBox.tsx` — new component for MDX admonition boxes (info/warning/success/danger variants)
+### Added
 
-#### Changed
-- **All components refactored to use semantic design tokens** instead of hardcoded Tailwind color classes:
-  - `ChapterProgress.tsx` — `from-primary` → `from-brand`
-  - `FeatureCard.tsx` — `bg-white`/`border-gray-200` → `bg-surface`/`border-border-subtle`; removed hover effects on non-interactive element
-  - `RAGChatbot.tsx` — 15+ class replacements (grays → tokens, primary → brand)
-  - `pages/index.tsx` — full homepage refactored (hero, features, modules, CTA); CTA changed from brand-saturated gradient to `bg-brand-subtle` tinted background; hero gradient uses `via-surface-code` token instead of hardcoded `via-gray-800`
-  - `pages/quiz.tsx` — converted from inline `style={{}}` objects to Tailwind utility classes using design tokens
-  - `theme/DocItem/index.tsx` — refactored buttons/banners to tokens; fixed pre-existing TypeScript error (`style` prop on ReactMarkdown)
-- Infima variables converted from hex (`#465fff`) to OKLCH (`oklch(62% 0.19 265)`)
-- Homepage animations changed from time-based (`animate-[slideUp_0.35s_...]`) to scroll-triggered (`scroll-reveal` classes)
-- `AGENTS.md` updated with new skill references and project layout changes
+- **Local Qdrant Docker Setup**
+  - Created Qdrant Docker container (`qdrant-local`) with persistent storage
+  - Configured auto-restart policy (`--restart=unless-stopped`)
+  - REST API at `localhost:6333`, Web UI at `localhost:6333/dashboard`
 
-### Header & Footer Overhaul
+- **Fully Offline Embeddings** (`backend/local_embeddings.py`)
+  - Custom `LocalEmbeddings` class using ONNX Runtime
+  - Loads `all-MiniLM-L6-v2` model from local files (no HuggingFace Hub calls)
+  - 384-dimensional embeddings with L2 normalization
+  - Proper mean pooling implementation
 
-#### Added
-- Swizzled `Navbar/Layout`, `Navbar/Content`, `Navbar/Logo` from `@docusaurus/theme-classic`
-- Swizzled `Footer/index` — custom footer component using `useThemeConfig`
-- Navbar Infima variable overrides in `custom.css` (height, background, shadow, link colors, dark mode)
-- Footer Infima variable overrides in `custom.css` (background, text, link colors, typography, dark mode)
-- Navbar `.navbar__inner`, `.navbar__items`, `.navbar__link` Tailwind-friendly CSS rules (spacing, alignment, transitions)
-- Footer `.footer__link-item` inline-flex layout with gap for future icon support
-- Footer `.footer__bottom` border-top separator and copyright styling
-- Fixed pre-existing `inert` type error in `Navbar/MobileSidebar/Layout/index.tsx` (cast to `any`)
+- **Incremental Ingestion Script** (`backend/local_ingest.py`)
+  - Loads MDX files from `website/docs/`
+  - Derives `chapter_id` from file path (matches existing pattern)
+  - File hashing for incremental updates (only re-ingests changed files)
+  - Orphan cleanup (removes chunks from deleted/renamed files)
+  - Creates KEYWORD payload index on `metadata.chapter_id`
+  - Supports `--full` flag for complete re-ingestion
 
-#### Changed
-- Navbar uses design tokens: `--color-navbar`, `--color-border-subtle`, `--color-text-primary`, `--color-brand`, `--color-brand-subtle`
-- Footer uses design tokens: `--color-footer-background`, `--color-on-dark`, `--color-on-dark-muted`
-- Both header and footer respect dark mode via `[data-theme='dark']` overrides
+- **Local Retrieval Module** (`backend/local_retrieve.py`)
+  - `get_retriever(chapter_id=None)` function
+  - Matches existing `gemini_retrieve.get_retriever` interface
+  - Supports chapter-filtered search
 
-#### Removed
-- Default Infima navbar/footer hex colors replaced with OKLCH design tokens
+- **Local Model Storage** (`backend/models/all-MiniLM-L6-v2/`)
+  - Downloaded ONNX model files for offline use
+  - Config, tokenizer, and model weights stored locally
 
-#### Removed
-- Zero `*.module.css` files remain (CSS Modules migration confirmed complete)
-- Zero hardcoded Tailwind color classes (`bg-gray-*`, `bg-blue-*`, `bg-red-*`, etc.) in components
-- Hover effects on non-interactive FeatureCard (anti-pattern fix per `tailwind-production-design` skill)
+### Changed
 
-#### Fixed
-- Pre-existing TypeScript error in `theme/DocItem/index.tsx` — `style` prop passed to `ReactMarkdown` (wrapped in div instead)
-- CTA section using brand-saturated gradient on large surface (violated "brand on high-intent only" rule)
-- Hero using hardcoded `via-gray-800` instead of design token
-- FeatureCard hover effects misleading users about clickability (non-interactive element)
+- **Updated `backend/chain.py`**
+  - Switched import from `gemini_retrieve` to `local_retrieve`
+  - Retrieval is now fully local (no cloud Qdrant dependency)
+
+- **Updated `backend/requirements.txt`**
+  - Added `onnxruntime`, `tokenizers`, `numpy` for local embeddings
+  - Added `langchain-community`, `langchain-text-splitters`
+  - Pinned all package versions
+  - Organized by category with comments
+
+### Removed
+
+- **Unused Packages**
+  - `fastembed` - Replaced by custom ONNX embeddings
+  - `langchain-openai` - Not used in codebase
+  - `openai` - Not used in codebase
+  - `tiktoken` - Not used in codebase
+  - `grpcio-status` - Transitive dependency (re-added as needed)
+  - `pillow` - Not required
+  - `loguru` - Not required
+  - `mmh3` - Not required
+  - `py_rust_stemmers` - Not required
+  - `regex` - Not required
+  - `jiter` - Not required
+
+### Fixed
+
+- **Mean Pooling Bug** (`backend/local_embeddings.py`)
+  - Fixed mask expansion shape (was `(-1, 1)`, now `(seq_len, 1)`)
+  - Added L2 normalization for consistent embeddings
+  - Verified similarity scores: same text = 1.0, similar = 0.96, different = 0.04
+
+- **Orphan Detection Bug** (`backend/local_ingest.py`)
+  - Fixed `get_existing_file_hashes` to look for `source_path` inside `metadata` (not top-level payload)
+
+### Verified
+
+- Chapter-filtered retrieval works for all 4 modules
+- Global search returns relevant results
+- Edge cases: empty text, long text, special characters, Unicode
+- Incremental ingestion detects new/changed files
+- Orphan cleanup removes chunks from deleted files
+- All imports work together without conflicts
+
+---
+
+## Migration Notes
+
+### From Cloud to Local
+
+**Before:**
+- Qdrant Cloud (remote) + Gemini Embeddings (API)
+- Required: `QDRANT_HOST`, `QDRANT_API_KEY`, `GEMINI_API_KEY` for embeddings
+
+**After:**
+- Qdrant Docker (local) + ONNX Embeddings (local)
+- Required: Only `GEMINI_API_KEY` for LLM chat responses
+- Embeddings are fully offline
+
+### Quick Start
+
+```bash
+# Start Qdrant
+docker start qdrant-local
+
+# Ingest documents
+cd backend && python local_ingest.py
+
+# Run API (still needs Gemini for LLM)
+uvicorn app:app --reload
+```
+
+### Adding New Documents
+
+```bash
+# Add/update MDX files in website/docs/
+cd backend && python local_ingest.py
+```
+
+### Force Full Re-ingestion
+
+```bash
+cd backend && python local_ingest.py --full
+```

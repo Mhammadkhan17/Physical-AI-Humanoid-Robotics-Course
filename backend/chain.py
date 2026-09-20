@@ -1,16 +1,16 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain_google_genai import ChatGoogleGenerativeAI # Use ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 
-from gemini_retrieve import get_retriever
+from local_retrieve import get_retriever
 import os
-from dotenv import load_dotenv # Added to load API keys
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # Load Gemini API Key
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 def format_docs(docs):
     if not docs:
@@ -22,12 +22,18 @@ def create_rag_chain(selected_text: str = None, chapter_id: str = None):
     """
     Creates and returns a RAG chain.
     """
-    if not GEMINI_API_KEY:
-        raise ValueError("GEMINI_API_KEY must be set in backend/.env file for the LLM.")
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        google_api_key=GEMINI_API_KEY,
-        temperature=0.3
+    if not OPENROUTER_API_KEY:
+        raise ValueError("OPENROUTER_API_KEY must be set in backend/.env file for the LLM.")
+    llm = ChatOpenAI(
+        model="nvidia/nemotron-3-ultra-550b-a55b:free",
+        openai_api_key=OPENROUTER_API_KEY,
+        openai_api_base="https://openrouter.ai/api/v1",
+        temperature=0.3,
+        streaming=True,
+        default_headers={
+            "HTTP-Referer": "https://physical-ai-humanoid-robotics-cours-zeta.vercel.app",
+            "X-Title": "Physical AI Textbook",
+        },
     )
     template = """You are a specialized AI tutor for the 'Physical AI & Humanoid Robotics' textbook.
 

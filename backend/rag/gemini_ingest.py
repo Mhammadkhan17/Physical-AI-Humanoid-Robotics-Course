@@ -1,3 +1,9 @@
+# =============================================================================
+# DEPRECATED: This module used Gemini Cloud embeddings + Qdrant Cloud.
+# Replaced by local_ingest.py (fully offline with ONNX embeddings).
+# Kept for reference only. Do not import.
+# =============================================================================
+
 # import os
 # import time
 # from langchain_community.document_loaders import DirectoryLoader, TextLoader

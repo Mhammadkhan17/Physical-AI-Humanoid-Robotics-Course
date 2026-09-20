@@ -15,7 +15,7 @@ cd website && yarn typecheck        # TypeScript type checking
 
 # Backend (backend/)
 pip install -r backend/requirements.txt   # Install Python deps
-cd backend && uvicorn main:app --reload   # Dev server (port 8000)
+cd backend && uvicorn app:app --reload   # Dev server (port 8000)
 
 # Deployment
 npx vercel --prod                    # Deploy to production (requires Vercel auth)
