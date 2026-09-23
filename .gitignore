@@ -39,3 +39,9 @@ backend/models/CACHEDIR.TAG
 
 # Qdrant runtime data
 qdrant_storage/
+
+# Agent skills (local only)
+.agents/
+
+# Planning docs (local only)
+docs/superpowers/
