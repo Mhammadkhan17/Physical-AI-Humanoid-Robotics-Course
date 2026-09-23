@@ -106,8 +106,13 @@ const RAGChatbot: React.FC = () => {
           className="w-14 h-14 rounded-full bg-brand text-brand-foreground border-none cursor-pointer shadow-lg flex items-center justify-center text-sm font-semibold transition-all duration-200 hover:bg-brand-hover hover:shadow-xl hover:scale-105 active:scale-95"
           onClick={toggleChat}
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <path d="M12 8V4H8" />
+            <rect width="16" height="12" x="4" y="8" rx="2" />
+            <path d="M2 14h2" />
+            <path d="M20 14h2" />
+            <path d="M15 13v2" />
+            <path d="M9 13v2" />
           </svg>
         </button>
       )}
@@ -118,7 +123,7 @@ const RAGChatbot: React.FC = () => {
           className={`${
             isExpanded
               ? 'fixed inset-0 w-full h-full max-w-none max-h-none rounded-none'
-              : 'absolute bottom-20 right-0 w-[calc(100vw-2rem)] max-w-[420px] h-[calc(100vh-12rem)] max-h-[650px]'
+              : 'absolute bottom-0 right-0 w-[calc(100vw-2rem)] max-w-[420px] h-[calc(100vh-6rem)] max-h-[650px]'
           } bg-surface rounded-lg shadow-2xl flex flex-col overflow-hidden border border-border-subtle transition-all duration-300`}
         >
           {/* Header */}
