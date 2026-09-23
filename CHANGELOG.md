@@ -2,6 +2,30 @@
 
 All notable changes to the Physical AI & Humanoid Robotics project.
 
+## [Unreleased] - 2026-09-23
+
+### Fixed
+
+- **Footer Icon-to-Text Spacing** (`website/src/css/custom.css`)
+  - Cosmos theme was overriding `.footer__link-item` with `display: block !important`
+  - This broke the `gap` property (only works on flex/grid containers)
+  - Fixed by forcing `display: inline-flex !important` to restore icon-text spacing
+
+- **Ask AI Floating Button** (`website/src/theme/DocItem/index.tsx`)
+  - Button now renders via React Portal to `document.body` (avoids overflow clipping)
+  - Selection detection uses `.closest('.markdown, .theme-doc-markdown, article')` instead of `contentRef`
+  - Fixed button position: removed `scrollX/scrollY` from fixed-position coordinates
+  - Added 10ms delay to mouseup handler so selection is finalized before detection
+  - Added `isMounted` guard for SSR safety
+
+### Changed
+
+- **Updated `.gitignore`**
+  - Added `.agents/` (local agent skills)
+  - Added `docs/superpowers/` (local planning docs)
+
+---
+
 ## [Unreleased] - 2026-09-20
 
 ### Added
