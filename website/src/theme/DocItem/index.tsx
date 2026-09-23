@@ -27,27 +27,29 @@ export default function DocItemWrapper(props) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleMouseUp = (event: MouseEvent) => {
-      if (contentRef.current && contentRef.current.contains(event.target as Node)) {
-        const selection = window.getSelection();
-        const selectedString = selection.toString().trim();
+    const handleMouseUp = () => {
+      setTimeout(() => {
+        if (contentRef.current) {
+          const selection = window.getSelection();
+          const selectedString = selection.toString().trim();
 
-        if (selectedString.length > 0) {
-          setSelectedText(selectedString);
-          setChapterId(props.content.metadata.id);
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-          setAskAiButtonPosition({
-            x: rect.right + window.scrollX - 50,
-            y: rect.bottom + window.scrollY + 5,
-          });
-          setShowAskAiButton(true);
-        } else {
-          setSelectedText(null);
-          setChapterId(null);
-          setShowAskAiButton(false);
+          if (selectedString.length > 0 && contentRef.current.contains(selection.anchorNode)) {
+            setSelectedText(selectedString);
+            setChapterId(props.content.metadata.id);
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            setAskAiButtonPosition({
+              x: rect.right + window.scrollX - 50,
+              y: rect.bottom + window.scrollY + 5,
+            });
+            setShowAskAiButton(true);
+          } else {
+            setSelectedText(null);
+            setChapterId(null);
+            setShowAskAiButton(false);
+          }
         }
-      }
+      }, 10);
     };
 
     document.addEventListener('mouseup', handleMouseUp);
