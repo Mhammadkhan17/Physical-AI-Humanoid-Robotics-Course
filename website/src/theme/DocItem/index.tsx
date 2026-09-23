@@ -45,15 +45,15 @@ export default function DocItemWrapper(props) {
         const anchorNode = selection.anchorNode;
         if (!anchorNode) return;
         const targetNode = anchorNode.nodeType === Node.TEXT_NODE ? anchorNode.parentElement : anchorNode as Element;
-        const markdownContainer = targetNode?.closest('.markdown, .theme-doc-markdown');
+        const markdownContainer = targetNode?.closest('.markdown, .theme-doc-markdown, .theme-doc-markdown-container, article');
         if (markdownContainer) {
           setSelectedText(selectedString);
           setChapterId(props.content.metadata.id);
           const range = selection.getRangeAt(0);
           const rect = range.getBoundingClientRect();
           setAskAiButtonPosition({
-            x: rect.right + window.scrollX - 50,
-            y: rect.bottom + window.scrollY + 5,
+            x: rect.right - 50,
+            y: rect.bottom + 5,
           });
           setShowAskAiButton(true);
         }
