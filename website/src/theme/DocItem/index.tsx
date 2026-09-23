@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import DocItem from '@theme-original/DocItem';
 import ChapterProgress from '@site/src/components/ChapterProgress';
 import { useHistory } from '@docusaurus/router';
@@ -19,6 +20,7 @@ export default function DocItemWrapper(props) {
   const [showTranslated, setShowTranslated] = useState(false);
   const [showAskAiButton, setShowAskAiButton] = useState(false);
   const [askAiButtonPosition, setAskAiButtonPosition] = useState({ x: 0, y: 0 });
+  const [isMounted, setIsMounted] = useState(false);
 
   const { selectedText, setSelectedText, setChapterId } = useSelectedText();
   const { setIsOpen: setChatbotOpen } = useChatbotVisibility();
@@ -27,27 +29,33 @@ export default function DocItemWrapper(props) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
     const handleMouseUp = () => {
       setTimeout(() => {
-        if (contentRef.current) {
-          const selection = window.getSelection();
-          const selectedString = selection.toString().trim();
-
-          if (selectedString.length > 0 && contentRef.current.contains(selection.anchorNode)) {
-            setSelectedText(selectedString);
-            setChapterId(props.content.metadata.id);
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            setAskAiButtonPosition({
-              x: rect.right + window.scrollX - 50,
-              y: rect.bottom + window.scrollY + 5,
-            });
-            setShowAskAiButton(true);
-          } else {
-            setSelectedText(null);
-            setChapterId(null);
-            setShowAskAiButton(false);
-          }
+        const selection = window.getSelection();
+        if (!selection) return;
+        const selectedString = selection.toString().trim();
+        if (selectedString.length === 0) {
+          setShowAskAiButton(false);
+          return;
+        }
+        const anchorNode = selection.anchorNode;
+        if (!anchorNode) return;
+        const targetNode = anchorNode.nodeType === Node.TEXT_NODE ? anchorNode.parentElement : anchorNode as Element;
+        const markdownContainer = targetNode?.closest('.markdown, .theme-doc-markdown');
+        if (markdownContainer) {
+          setSelectedText(selectedString);
+          setChapterId(props.content.metadata.id);
+          const range = selection.getRangeAt(0);
+          const rect = range.getBoundingClientRect();
+          setAskAiButtonPosition({
+            x: rect.right + window.scrollX - 50,
+            y: rect.bottom + window.scrollY + 5,
+          });
+          setShowAskAiButton(true);
         }
       }, 10);
     };
@@ -210,15 +218,18 @@ export default function DocItemWrapper(props) {
         </div>
       )}
 
-      {/* Floating Ask AI Button */}
-      {showAskAiButton && selectedText && (
-        <button
-          className="fixed z-[1001] px-4 py-2 bg-brand text-brand-foreground text-sm font-medium rounded-md shadow-lg hover:bg-brand-hover transition-colors"
-          style={{ left: askAiButtonPosition.x, top: askAiButtonPosition.y }}
-          onClick={handleAskAiClick}
-        >
-          Ask AI about this
-        </button>
+      {/* Floating Ask AI Button — rendered via Portal to avoid overflow clipping */}
+      {isMounted && createPortal(
+        showAskAiButton && selectedText && (
+          <button
+            className="fixed z-[1001] px-4 py-2 bg-brand text-brand-foreground text-sm font-medium rounded-md shadow-lg hover:bg-brand-hover transition-colors"
+            style={{ left: askAiButtonPosition.x, top: askAiButtonPosition.y }}
+            onClick={handleAskAiClick}
+          >
+            Ask AI about this
+          </button>
+        ),
+        document.body
       )}
     </>
   );
