@@ -305,6 +305,7 @@
   --ifm-footer-padding-vertical: 2rem;
   --ifm-footer-padding-horizontal: 1rem;
   background-color: #060709;
+  border-top: none;
   padding-top: 2rem;
 }
 [data-theme='dark'] .footer--dark {
@@ -360,7 +361,6 @@
   height: 15px;
 }
 .footer__bottom {
-  border-top: 1px solid oklch(30% 0.005 260);
   padding-top: 1.5rem;
   margin-top: 2rem;
   text-align: center;
@@ -375,6 +375,9 @@
 }
 .footer__copyright a:hover {
   color: var(--color-on-dark);
+}
+.footer__copyright {
+  border-top: none;
 }
 
 /* Navbar GitHub icon */
