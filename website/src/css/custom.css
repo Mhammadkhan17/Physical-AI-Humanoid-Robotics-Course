@@ -338,7 +338,7 @@
   font-size: 0.875rem;
   line-height: 1.6;
   transition: color var(--duration-fast) var(--ease-standard);
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   gap: 0.5rem;
 }
@@ -352,6 +352,7 @@
   flex-shrink: 0;
   opacity: 0.7;
   transition: opacity var(--duration-fast) var(--ease-standard);
+  margin-right: 0;
 }
 .footer__link-item:hover .footer__link-icon {
   opacity: 1;
