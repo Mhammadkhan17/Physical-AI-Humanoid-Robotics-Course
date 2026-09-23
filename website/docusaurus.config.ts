@@ -60,6 +60,12 @@ const config: Config = {
     },
   ],
 
+  themes: [
+    ['cosmos-docusaurus-theme', {
+      injectFavicon: false,
+    }],
+  ],
+
   presets: [
     [
       'classic',

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
 
 @import "tailwindcss";
@@ -530,4 +531,91 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ── Cosmos theme homepage exclusion ────────────────────────────────── */
+/* The cosmos theme is applied globally, but we want to preserve the
+   original homepage design. Use body.home to target only the homepage. */
+
+body.home {
+  /* Restore Poppins font on homepage */
+  --ifm-font-family-base: 'Poppins', sans-serif;
+  --ifm-font-family-monospace: 'IBM Plex Mono', 'SFMono-Regular', 'Consolas',
+    'Liberation Mono', 'Menlo', monospace;
+
+  /* Restore original color scheme for homepage */
+  --ifm-color-primary: oklch(62% 0.19 265);
+  --ifm-color-primary-dark: oklch(55% 0.20 265);
+  --ifm-color-primary-darker: oklch(48% 0.20 265);
+  --ifm-color-primary-darkest: oklch(38% 0.20 265);
+  --ifm-color-primary-light: oklch(68% 0.17 265);
+  --ifm-color-primary-lighter: oklch(72% 0.15 265);
+  --ifm-color-primary-lightest: oklch(82% 0.10 265);
+
+  /* Restore homepage surface colors */
+  --ifm-background-color: var(--color-surface);
+  --ifm-navbar-background-color: var(--color-surface);
+  --ifm-footer-background-color: #060709;
+
+  /* Restore original hero styling */
+  --ifm-hero-background-color: transparent;
+}
+
+body.home[data-theme='dark'] {
+  /* Restore dark mode colors on homepage */
+  --ifm-color-primary: oklch(72% 0.15 265);
+  --ifm-color-primary-dark: oklch(65% 0.16 265);
+  --ifm-color-primary-darker: oklch(58% 0.17 265);
+  --ifm-color-primary-darkest: oklch(48% 0.20 265);
+  --ifm-color-primary-light: oklch(78% 0.12 265);
+  --ifm-color-primary-lighter: oklch(82% 0.10 265);
+  --ifm-color-primary-lightest: oklch(90% 0.05 265);
+
+  /* Restore dark mode surfaces */
+  --ifm-background-color: var(--color-footer-background);
+  --ifm-navbar-background-color: var(--color-footer-background);
+}
+
+/* Homepage navbar - preserve current styling */
+body.home .navbar {
+  background-color: var(--color-surface);
+  box-shadow: 0 1px 0 0 var(--color-border-subtle);
+}
+
+body.home[data-theme='dark'] .navbar {
+  background-color: var(--color-footer-background);
+  box-shadow: 0 1px 0 0 oklch(25% 0.005 260);
+}
+
+/* Homepage hero - preserve gradient */
+body.home .hero {
+  background: linear-gradient(to bottom right, var(--color-surface), var(--color-background), var(--color-surface));
+}
+
+body.home[data-theme='dark'] .hero {
+  background: linear-gradient(to bottom right, var(--color-footer-background), var(--color-surface-code), var(--color-footer-background));
+}
+
+/* Homepage footer - keep dark styling */
+body.home .footer--dark {
+  background-color: #060709;
+}
+
+/* ── Cosmos code font override ─────────────────────────────────────────── */
+code, pre, .prism-code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+}
+
+/* ── Heading paragraph spacing ─────────────────────────────────────────── */
+.markdown h1 { margin-bottom: 1rem; }
+.markdown h2 { margin-bottom: 0.75rem; margin-top: 2rem; }
+.markdown h3 { margin-bottom: 0.5rem; margin-top: 1.5rem; }
+.markdown h4,
+.markdown h5,
+.markdown h6 { margin-bottom: 0.5rem; margin-top: 1.25rem; }
+
+/* ── Paragraph spacing ─────────────────────────────────────────────────── */
+.markdown p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
 }
