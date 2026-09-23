@@ -340,7 +340,7 @@
   transition: color var(--duration-fast) var(--ease-standard);
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 .footer__link-item:hover {
   color: var(--color-on-dark);
