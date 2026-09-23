@@ -331,7 +331,7 @@
   margin: 0;
 }
 .footer__item {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 .footer__link-item {
   color: var(--color-on-dark-muted);
