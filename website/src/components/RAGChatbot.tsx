@@ -156,7 +156,15 @@ const RAGChatbot: React.FC = () => {
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3">
+          <div
+            className="flex-1 p-4 overflow-y-auto flex flex-col gap-3"
+            onClick={() => {
+              if (selectedText) {
+                setSelectedText(null);
+                setChapterId(null);
+              }
+            }}
+          >
             {selectedText && (
               <div className="bg-info-bg border border-info-border rounded-md p-3 text-xs text-info-text relative">
                 <p className="m-0 mb-2 font-medium">Context from selection:</p>

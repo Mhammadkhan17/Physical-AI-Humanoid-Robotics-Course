@@ -158,6 +158,7 @@
 }
 
 :root {
+  --ifm-font-family-base: 'Poppins', sans-serif;
   --ifm-color-primary: oklch(62% 0.19 265);
   --ifm-color-primary-dark: oklch(55% 0.20 265);
   --ifm-color-primary-darker: oklch(48% 0.20 265);
@@ -258,12 +259,15 @@
 }
 .navbar__brand,
 .navbar__link {
-  color: var(--color-text-primary);
+  color: var(--color-text-primary) !important;
   font-weight: 600;
 }
 .navbar--dark .navbar__brand,
 .navbar--dark .navbar__link {
-  color: var(--color-on-dark);
+  color: var(--color-on-dark) !important;
+}
+.navbar__title {
+  color: var(--color-text-primary) !important;
 }
 .navbar__link:hover,
 .navbar__link--active {
@@ -399,16 +403,84 @@
   display: none !important;
 }
 
-/* ── Doc page sidebar spacing ────────────────────────────────────── */
+/* ── Doc page sidebar ────────────────────────────────────────────── */
 .theme-doc-sidebar-container {
   padding-left: 0.5rem;
 }
 
-/* Sidebar category icons */
-.sidebar-cat-server::before { content: '⚙️ '; }
-.sidebar-cat-monitor::before { content: '🖥️ '; }
-.sidebar-cat-layers::before { content: '🧠 '; }
-.sidebar-cat-puzzle::before { content: '🧩 '; }
+/* Cosmos injects Outfit font globally. Override with body for specificity. */
+body {
+  --ifm-font-family-base: 'Poppins', sans-serif;
+}
+
+/* Sidebar background - match page body color */
+body .theme-doc-sidebar-container {
+  background: #eef2f7 !important;
+  border-right-color: #d5dce6 !important;
+}
+html[data-theme='dark'] .theme-doc-sidebar-container {
+  background: #030712 !important;
+  border-right-color: #1f2937 !important;
+}
+
+/* Sidebar logo - smaller text */
+body .theme-doc-sidebar-container .sidebarLogo_isFc b {
+  font-size: 0.85rem;
+}
+
+/* Hide cosmos version badge */
+[class*=sidebarViewport]::after {
+  display: none !important;
+}
+
+/* Sidebar text colors - use cosmos tokens */
+body .theme-doc-sidebar-container .menu__link,
+body .theme-doc-sidebar-container .menu__list-item-collapsible {
+  color: var(--color-text-primary) !important;
+}
+body .theme-doc-sidebar-container .menu__link--active {
+  color: var(--color-brand) !important;
+  background: rgba(70, 95, 255, 0.08) !important;
+}
+
+/* Sidebar spacing */
+body .theme-doc-sidebar-menu > .menu__list-item {
+  margin-bottom: 0.5rem;
+}
+body .theme-doc-sidebar-menu .menu__list {
+  margin-top: 0.375rem;
+}
+body .theme-doc-sidebar-menu .menu__list-item .menu__link {
+  padding: 5px 8px;
+}
+
+body .table-of-contents > ul > li > ul .table-of-contents__link {
+  color: var(--color-text-secondary) !important;
+}
+
+body .table-of-contents .table-of-contents__link:hover,
+body .table-of-contents .table-of-contents__link--active {
+  color: var(--color-brand) !important;
+}
+
+body .table-of-contents {
+  padding: 0;
+}
+body .table-of-contents > ul {
+  padding-left: 0.75rem;
+}
+body .table-of-contents__link {
+  margin-left: 0 !important;
+  padding: 4px 8px !important;
+  line-height: 1.6;
+}
+body .table-of-contents > ul > li {
+  margin-bottom: 0.25rem;
+}
+body .table-of-contents > ul > li > ul {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
 
 /* ── Scroll-triggered animations ────────────────────────────────── */
 /* Base state: elements hidden before scroll trigger (progressive enhancement) */
@@ -565,7 +637,7 @@ body.home {
   --ifm-hero-background-color: transparent;
 }
 
-body.home[data-theme='dark'] {
+html[data-theme='dark'] body.home {
   /* Restore dark mode colors on homepage */
   --ifm-color-primary: oklch(72% 0.15 265);
   --ifm-color-primary-dark: oklch(65% 0.16 265);
@@ -586,7 +658,7 @@ body.home .navbar {
   box-shadow: 0 1px 0 0 var(--color-border-subtle);
 }
 
-body.home[data-theme='dark'] .navbar {
+html[data-theme='dark'] body.home .navbar {
   background-color: var(--color-footer-background);
   box-shadow: 0 1px 0 0 oklch(25% 0.005 260);
 }
@@ -596,7 +668,7 @@ body.home .hero {
   background: linear-gradient(to bottom right, var(--color-surface), var(--color-background), var(--color-surface));
 }
 
-body.home[data-theme='dark'] .hero {
+html[data-theme='dark'] body.home .hero {
   background: linear-gradient(to bottom right, var(--color-footer-background), var(--color-surface-code), var(--color-footer-background));
 }
 
@@ -622,4 +694,24 @@ code, pre, .prism-code {
 .markdown p {
   margin-bottom: 1rem;
   line-height: 1.8;
+}
+
+/* ── Edit this page & pagination spacing ──────────────────────────────── */
+.theme-doc-footer-edit-meta-row {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.theme-edit-this-page {
+  margin-bottom: 1rem;
+}
+
+.pagination-nav {
+  margin-top: 2rem !important;
+  gap: 1.5rem !important;
+}
+
+.pagination-nav__link {
+  transition: background-color 0.15s, border-color 0.15s;
 }

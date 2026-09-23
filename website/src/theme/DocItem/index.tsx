@@ -158,6 +158,7 @@ export default function DocItemWrapper(props) {
     if (selectedText) {
       setChatbotOpen(true);
       setShowAskAiButton(false);
+      window.getSelection()?.removeAllRanges();
     }
   };
 
