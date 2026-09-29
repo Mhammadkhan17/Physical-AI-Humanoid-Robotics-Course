@@ -2,6 +2,22 @@
 
 All notable changes to the Physical AI & Humanoid Robotics project.
 
+## [Unreleased] - 2026-09-28
+
+### Changed
+
+- **Answer path collapsed into one deep module** (`backend/chain.py`)
+  - Qdrant client, ONNX embeddings and vector store now built lazily once per process instead of per request (fold of `local_retrieve.py`)
+  - New seam: `create_rag_chain(..., retriever=None, embedder=None, llm=None)` — tests inject an in-memory retriever and fake LLM with zero monkeypatching
+  - `/api/chat` build failures now return 500 JSON `{detail}` (matches `api-contracts.yaml`) instead of leaking `"Error: …"` into a 200 stream; streaming failures log and emit a final error chunk
+  - First backend test suite: 7 pytest tests (chain wiring, chapter-filter structure, adapter, key guard, route 500, empty-selection default)
+
+### Removed
+
+- `backend/local_retrieve.py` (38 lines folded into `chain.py`; chapter filter now lives at one shared constant)
+
+---
+
 ## [Unreleased] - 2026-09-23
 
 ### Fixed

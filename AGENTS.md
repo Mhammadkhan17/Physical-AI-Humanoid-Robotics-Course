@@ -16,6 +16,7 @@ cd website && yarn typecheck        # TypeScript type checking
 # Backend (backend/)
 pip install -r backend/requirements.txt   # Install Python deps
 cd backend && uvicorn app:app --reload   # Dev server (port 8000)
+cd backend && .venv/bin/python -m pytest # Backend test suite (pytest)
 
 # Deployment
 npx vercel --prod                    # Deploy to production (requires Vercel auth)
@@ -32,8 +33,8 @@ npx vercel --prod                    # Deploy to production (requires Vercel aut
 │   └── docs/             # Course MDX content (modules 1-4)
 ├── backend/              # Python FastAPI API
 │   ├── app.py            # Main Vercel-deployed app (auth, RAG, personalize, translate)
-│   ├── chain.py          # LangChain RAG chain (Gemini + Qdrant)
-│   ├── gemini_retrieve.py # Qdrant vector store retrieval
+│   ├── chain.py          # Answer module: prompt, LLM factory, retriever seam
+│   ├── tests/            # pytest suite: in-memory adapter, chain seam, chat 500
 │   ├── agents/           # AI agent routers (diagram gen, ROS2 code gen, ROS2 doctor)
 │   ├── models/schemas.py # Pydantic request/response schemas
 │   └── rag/              # Ingestion and retrieval utilities
