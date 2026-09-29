@@ -6,6 +6,11 @@ All notable changes to the Physical AI & Humanoid Robotics project.
 
 ### Changed
 
+- **Ask AI selection lifetime owned by one module** (`website/src/features/ask-ai/`)
+  - New deep module: `context.tsx` (state + transitions), `useAskAiCapture.ts` (document mouseup adapter), `AskAiButton.tsx` (portal button), `index.ts` (public surface)
+  - `DocItem` now only calls `useAskAiCapture(id)`; `RAGChatbot` reads and clears through `useAskAi()`
+  - Chat-aware selection rules: surface guard (`data-ask-ai-surface`), markdown ladder, snapshot-guarded send clear
+  - First test suite in the repo: 20 vitest tests (transitions, capture rules, button visibility, chatbot consumer)
 - **Answer path collapsed into one deep module** (`backend/chain.py`)
   - Qdrant client, ONNX embeddings and vector store now built lazily once per process instead of per request (fold of `local_retrieve.py`)
   - New seam: `create_rag_chain(..., retriever=None, embedder=None, llm=None)` — tests inject an in-memory retriever and fake LLM with zero monkeypatching
@@ -14,7 +19,17 @@ All notable changes to the Physical AI & Humanoid Robotics project.
 
 ### Removed
 
+- `website/src/contexts/SelectedTextContext.tsx` and `website/src/contexts/ChatbotVisibilityContext.tsx`
+  - Replaced by `src/features/ask-ai` (55 lines of pass-through state deleted)
 - `backend/local_retrieve.py` (38 lines folded into `chain.py`; chapter filter now lives at one shared constant)
+
+### Fixed
+
+- Ask AI button timer leak (uncleared `setTimeout` on unmount, old `DocItem:37`)
+- Orphaned `chapterId` after clearing the selection (old `RAGChatbot:176`)
+- Stale chip after dismissing the button then opening the chat via the icon
+- Selection no longer survives client-side navigation with a stale `chapterId`
+- A fresh selection made while a response streams now survives completion (snapshot guard)
 
 ---
 

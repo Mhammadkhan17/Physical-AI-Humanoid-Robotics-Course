@@ -1,14 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState, useRef } from 'react';
 import DocItem from '@theme-original/DocItem';
 import ChapterProgress from '@site/src/components/ChapterProgress';
-import { useHistory } from '@docusaurus/router';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { useSelectedText } from '@site/src/contexts/SelectedTextContext';
-import { useChatbotVisibility } from '@site/src/contexts/ChatbotVisibilityContext';
+import { useAskAiCapture } from '@site/src/features/ask-ai';
 
 export default function DocItemWrapper(props) {
   const [personalizedContent, setPersonalizedContent] = useState<string | null>(null);
@@ -18,59 +14,9 @@ export default function DocItemWrapper(props) {
   const [isLoadingTranslate, setIsLoadingTranslate] = useState(false);
   const [errorTranslate, setErrorTranslate] = useState<string | null>(null);
   const [showTranslated, setShowTranslated] = useState(false);
-  const [showAskAiButton, setShowAskAiButton] = useState(false);
-  const [askAiButtonPosition, setAskAiButtonPosition] = useState({ x: 0, y: 0 });
-  const [isMounted, setIsMounted] = useState(false);
-
-  const { selectedText, setSelectedText, setChapterId } = useSelectedText();
-  const { setIsOpen: setChatbotOpen } = useChatbotVisibility();
-  const history = useHistory();
-  const quizUrl = useBaseUrl('/quiz');
   const contentRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const handleMouseUp = () => {
-      setTimeout(() => {
-        const selection = window.getSelection();
-        if (!selection) return;
-        const selectedString = selection.toString().trim();
-        if (selectedString.length === 0) {
-          setShowAskAiButton(false);
-          return;
-        }
-        const anchorNode = selection.anchorNode;
-        if (!anchorNode) return;
-        const targetNode = anchorNode.nodeType === Node.TEXT_NODE ? anchorNode.parentElement : anchorNode as Element;
-        const markdownContainer = targetNode?.closest('.markdown, .theme-doc-markdown, .theme-doc-markdown-container, article');
-        if (markdownContainer) {
-          setSelectedText(selectedString);
-          setChapterId(props.content.metadata.id);
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-          setAskAiButtonPosition({
-            x: rect.right - 50,
-            y: rect.bottom + 5,
-          });
-          setShowAskAiButton(true);
-        }
-      }, 10);
-    };
-
-    document.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [setSelectedText, setChapterId, props.content.metadata.id]);
-
-  useEffect(() => {
-    if (!selectedText) {
-      setShowAskAiButton(false);
-    }
-  }, [selectedText]);
+  useAskAiCapture(props.content.metadata.id);
 
   const handlePersonalize = async () => {
     const chapterText = contentRef.current?.innerText || '';
@@ -154,14 +100,6 @@ export default function DocItemWrapper(props) {
     ? translatedContent
     : personalizedContent;
 
-  const handleAskAiClick = () => {
-    if (selectedText) {
-      setChatbotOpen(true);
-      setShowAskAiButton(false);
-      window.getSelection()?.removeAllRanges();
-    }
-  };
-
   return (
     <>
       <ChapterProgress chapterId={props.content.metadata.id} />
@@ -217,20 +155,6 @@ export default function DocItemWrapper(props) {
         <div ref={contentRef}>
           <DocItem {...props} />
         </div>
-      )}
-
-      {/* Floating Ask AI Button — rendered via Portal to avoid overflow clipping */}
-      {isMounted && createPortal(
-        showAskAiButton && selectedText && (
-          <button
-            className="fixed z-[1001] px-4 py-2 bg-brand text-brand-foreground text-sm font-medium rounded-md shadow-lg hover:bg-brand-hover transition-colors"
-            style={{ left: askAiButtonPosition.x, top: askAiButtonPosition.y }}
-            onClick={handleAskAiClick}
-          >
-            Ask AI about this
-          </button>
-        ),
-        document.body
       )}
     </>
   );

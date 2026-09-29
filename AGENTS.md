@@ -27,7 +27,7 @@ npx vercel --prod                    # Deploy to production (requires Vercel aut
 ```
 ├── website/              # Docusaurus 3 frontend (React 19, TypeScript)
 │   ├── src/components/   # RAGChatbot, ChapterProgress, HomepageFeatures
-│   ├── src/contexts/     # AuthContext, SelectedTextContext, ChatbotVisibilityContext
+│   ├── src/features/ask-ai/ # Ask AI selection module (state, capture, button, tests)
 │   ├── src/pages/        # index, login, signup, quiz
 │   ├── src/theme/        # Root, DocItem, Layout overrides
 │   └── docs/             # Course MDX content (modules 1-4)

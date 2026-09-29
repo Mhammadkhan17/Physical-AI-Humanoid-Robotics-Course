@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelectedText } from '@site/src/contexts/SelectedTextContext';
-import { useChatbotVisibility } from '@site/src/contexts/ChatbotVisibilityContext';
+import { useAskAi } from '@site/src/features/ask-ai';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -11,13 +10,13 @@ type Message = {
 };
 
 const RAGChatbot: React.FC = () => {
-  const { selectedText, setSelectedText, chapterId, setChapterId } = useSelectedText();
-  const { isOpen, setIsOpen } = useChatbotVisibility();
+  const { selection, isOpen, open, close, clear } = useAskAi();
   const [input, setInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const selectionRef = useRef(selection);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -25,13 +24,17 @@ const RAGChatbot: React.FC = () => {
 
   useEffect(scrollToBottom, [chatHistory]);
 
+  useEffect(() => {
+    selectionRef.current = selection;
+  });
+
   const toggleChat = () => {
-    setIsOpen(!isOpen);
-    setIsExpanded(false);
     if (isOpen) {
-      setSelectedText(null);
-      setChapterId(null);
+      close();
+    } else {
+      open();
     }
+    setIsExpanded(false);
   };
 
   const toggleExpand = () => {
@@ -41,6 +44,7 @@ const RAGChatbot: React.FC = () => {
   const handleSendMessage = async () => {
     if (input.trim() === '') return;
 
+    const snapshot = selection;
     const newUserMessage: Message = { text: input, sender: 'user' };
     setChatHistory((prev) => [...prev, newUserMessage, { text: '', sender: 'bot' }]);
     setInput('');
@@ -48,10 +52,10 @@ const RAGChatbot: React.FC = () => {
 
     try {
       const body: { message: string; selected_text?: string; chapter_id?: string } = { message: input };
-      if (selectedText && selectedText.trim().length > 0) {
-        body.selected_text = selectedText;
-        if (chapterId) {
-          body.chapter_id = chapterId;
+      if (snapshot && snapshot.text.trim().length > 0) {
+        body.selected_text = snapshot.text;
+        if (snapshot.chapterId) {
+          body.chapter_id = snapshot.chapterId;
         }
       }
 
@@ -93,13 +97,15 @@ const RAGChatbot: React.FC = () => {
       ]);
     } finally {
       setIsStreaming(false);
-      setSelectedText(null);
-      setChapterId(null);
+      const current = selectionRef.current;
+      if (current && snapshot && current.text === snapshot.text && current.chapterId === snapshot.chapterId) {
+        clear();
+      }
     }
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[1000]">
+    <div className="fixed bottom-6 right-6 z-[1000]" data-ask-ai-surface="">
       {/* Chat Toggle Button — only shown when chat is closed */}
         {!isOpen && (
         <button
@@ -159,21 +165,20 @@ const RAGChatbot: React.FC = () => {
           <div
             className="flex-1 p-4 overflow-y-auto flex flex-col gap-3"
             onClick={() => {
-              if (selectedText) {
-                setSelectedText(null);
-                setChapterId(null);
+              if (selection) {
+                clear();
               }
             }}
           >
-            {selectedText && (
+            {selection && (
               <div className="bg-info-bg border border-info-border rounded-md p-3 text-xs text-info-text relative">
                 <p className="m-0 mb-2 font-medium">Context from selection:</p>
                 <p className="m-0 max-h-20 overflow-y-auto whitespace-pre-wrap break-words bg-surface p-2 rounded border border-border-subtle">
-                  {selectedText}
+                  {selection.text}
                 </p>
                 <button
                   className="absolute top-2 right-2 bg-transparent border-none text-danger-text cursor-pointer text-xs px-2 py-1 rounded hover:bg-danger-bg transition-colors"
-                  onClick={() => setSelectedText(null)}
+                  onClick={() => clear()}
                 >
                   Clear
                 </button>
