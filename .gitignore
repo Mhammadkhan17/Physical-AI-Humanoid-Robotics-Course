@@ -42,3 +42,5 @@ qdrant_storage/
 
 # Planning docs (local only)
 docs/superpowers/
+upgrade_codebase_architecture.md
+answer-path-module.md
