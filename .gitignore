@@ -44,3 +44,7 @@ qdrant_storage/
 docs/superpowers/
 upgrade_codebase_architecture.md
 answer-path-module.md
+philosophy-report.md
+rag_implementation.md
+rag_instruction.md
+architecture-review-*.html
