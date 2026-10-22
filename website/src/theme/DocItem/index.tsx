@@ -6,6 +6,8 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useAskAiCapture } from '@site/src/features/ask-ai';
 
+import styles from './styles.module.css';
+
 export default function DocItemWrapper(props) {
   const [personalizedContent, setPersonalizedContent] = useState<string | null>(null);
   const [isLoadingPersonalize, setIsLoadingPersonalize] = useState(false);
@@ -103,53 +105,82 @@ export default function DocItemWrapper(props) {
   return (
     <>
       <ChapterProgress chapterId={props.content.metadata.id} />
-      
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 mb-6">
-        <button
-          className="px-4 py-2 bg-brand text-brand-foreground font-medium rounded-md hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handlePersonalize}
-          disabled={isLoadingPersonalize}
-        >
-          {isLoadingPersonalize ? 'Personalizing...' : 'Personalize this chapter'}
-        </button>
-        <button
-          className="px-4 py-2 border-2 border-brand text-brand font-medium rounded-md hover:bg-brand-subtle transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleTranslate}
-          disabled={isLoadingTranslate}
-        >
-          <span className="font-urdu mr-2">اردو میں پڑھیں</span> Read in Urdu
-        </button>
+
+      <div className={styles.apparatusRow}>
+        <div className={styles.apparatusInner}>
+          <div className={styles.apparatusHead}>
+            <span className={styles.apparatusLabel}>Study apparatus</span>
+            <span className={styles.apparatusDot} aria-hidden="true" />
+            <p className={styles.apparatusCopy}>
+              Personalize this chapter or read it in Urdu.
+            </p>
+          </div>
+          <div className={styles.apparatusActions}>
+            <button
+              type="button"
+              className={styles.primary}
+              onClick={handlePersonalize}
+              disabled={isLoadingPersonalize}>
+              {isLoadingPersonalize ? 'Personalizing...' : 'Personalize'}
+            </button>
+            <button
+              type="button"
+              className={styles.secondary}
+              onClick={handleTranslate}
+              disabled={isLoadingTranslate}>
+              <span className={styles.urdu}>اردو میں پڑھیں</span>
+              <span>Read in Urdu</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Error Messages */}
-      {errorPersonalize && (
-        <div className="bg-danger-bg border border-danger-border text-danger-text px-4 py-3 rounded-md mb-4 text-sm dark:bg-danger-dark-bg dark:border-danger-dark-border dark:text-danger-dark-text">
-          {errorPersonalize}
-        </div>
-      )}
-      {errorTranslate && (
-        <div className="bg-danger-bg border border-danger-border text-danger-text px-4 py-3 rounded-md mb-4 text-sm dark:bg-danger-dark-bg dark:border-danger-dark-border dark:text-danger-dark-text">
-          {errorTranslate}
-        </div>
-      )}
+      <div className={styles.messages}>
+        {errorPersonalize && (
+          <div className={`${styles.banner} ${styles.error}`} role="alert">
+            {errorPersonalize}
+          </div>
+        )}
+        {errorTranslate && (
+          <div className={`${styles.banner} ${styles.error}`} role="alert">
+            {errorTranslate}
+          </div>
+        )}
+        {personalizedContent && (
+          <div className={`${styles.banner} ${styles.info}`}>
+            This chapter has been personalized for your experience level.
+          </div>
+        )}
+      </div>
 
-      {/* Personalization Banner */}
-      {personalizedContent && (
-        <div className="bg-info-bg border border-info-border text-info-text px-4 py-3 rounded-md mb-5 text-sm dark:bg-info-dark-bg dark:border-info-dark-border dark:text-info-dark-text">
-          This chapter has been personalized for your experience level.
-        </div>
-      )}
-
-      {/* Main Content */}
       {displayContent ? (
-        <div style={showTranslated ? { fontFamily: "'Noto Nastaliq Urdu', serif", direction: 'rtl', lineHeight: '3em' } : undefined}>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-          >
-            {displayContent}
-          </ReactMarkdown>
+        <div className={styles.personalizedRow}>
+          <div className={styles.personalizedSheet}>
+            <div className={styles.personalizedHead}>
+              <span className={styles.apparatusLabel}>
+                {showTranslated ? 'Urdu translation' : 'Personalized chapter'}
+              </span>
+              <span className={styles.personalizedRule} aria-hidden="true" />
+            </div>
+            <div
+              className={`${styles.personalizedBody} theme-doc-markdown markdown`}
+              lang={showTranslated ? 'ur' : undefined}
+              dir={showTranslated ? 'rtl' : undefined}
+              style={
+                showTranslated
+                  ? {
+                      fontFamily: "'Noto Nastaliq Urdu', serif",
+                      lineHeight: '2.8',
+                    }
+                  : undefined
+              }>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}>
+                {displayContent}
+              </ReactMarkdown>
+            </div>
+          </div>
         </div>
       ) : (
         <div ref={contentRef}>

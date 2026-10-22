@@ -106,7 +106,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Physical AI & Humanoid Robotics',
+      title: 'Physical AI & Robotics',
       hideOnScroll: true,
       items: [
         {
@@ -130,7 +130,7 @@ const config: Config = {
           items: [
             {
               label: 'Modules Overview',
-              to: '/docs/module-1-robotic-nervous-system/ros-nodes-topics-services', // Link to first module
+              to: '/docs/module-1-robotic-nervous-system', // Module 1 overview page
             },
           ],
         },

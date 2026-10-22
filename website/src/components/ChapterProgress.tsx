@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import styles from './ChapterProgress.module.css';
+
 interface ChapterProgressProps {
   chapterId: string;
 }
@@ -23,7 +25,12 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId }) => {
 
   return (
     <div
-      className="fixed top-0 left-0 h-1 bg-gradient-to-r from-brand to-brand-hover z-[9999] transition-all duration-150 ease-out"
+      className={styles.progress}
+      role="progressbar"
+      aria-label="Chapter reading progress"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress)}
       style={{ width: `${progress}%` }}
     />
   );

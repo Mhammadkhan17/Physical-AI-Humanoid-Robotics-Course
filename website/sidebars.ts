@@ -18,7 +18,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Module 1: The Robotic Nervous System (ROS 2)',
-      className: 'sidebar-cat-server',
+      link: {type: 'doc', id: 'module-1-robotic-nervous-system/index'},
       items: [
         'module-1-robotic-nervous-system/ros-nodes-topics-services',
         'module-1-robotic-nervous-system/python-rclpy-bridge',
@@ -28,7 +28,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Module 2: The Digital Twin (Gazebo & Unity)',
-      className: 'sidebar-cat-monitor',
+      link: {type: 'doc', id: 'module-2-digital-twin/index'},
       items: [
         'module-2-digital-twin/simulating-physics-in-gazebo',
         'module-2-digital-twin/rendering-in-unity',
@@ -38,7 +38,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Module 3: The AI-Robot Brain (NVIDIA Isaac™)',
-      className: 'sidebar-cat-layers',
+      link: {type: 'doc', id: 'module-3-ai-robot-brain/index'},
       items: [
         'module-3-ai-robot-brain/nvidia-isaac-sim',
         'module-3-ai-robot-brain/isaac-ros-vslam',
@@ -48,7 +48,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Module 4: Vision-Language-Action (VLA)',
-      className: 'sidebar-cat-puzzle',
+      link: {type: 'doc', id: 'module-4-vision-language-action/index'},
       items: [
         'module-4-vision-language-action/voice-to-action-whisper',
         'module-4-vision-language-action/cognitive-planning-with-llms',

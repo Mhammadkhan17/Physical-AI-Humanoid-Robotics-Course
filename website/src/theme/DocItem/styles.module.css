@@ -1,0 +1,251 @@
+.apparatusRow,
+.messages,
+.personalizedRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  gap: 3rem;
+  max-width: 74rem;
+  margin: 0 auto;
+}
+
+.apparatusRow {
+  margin-bottom: 1.25rem;
+}
+
+.messages {
+  margin-bottom: 1rem;
+}
+
+.messages > * {
+  grid-column: 1;
+}
+
+.messages:empty {
+  display: none;
+}
+
+.apparatusInner {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  min-height: 3.25rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--color-hairline);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.apparatusHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.apparatusLabel {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-cobalt);
+}
+
+.apparatusDot {
+  flex: 0 0 auto;
+  width: 4px;
+  height: 4px;
+  align-self: center;
+  border-radius: 50%;
+  background: var(--color-amber);
+}
+
+.apparatusCopy {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--color-ink-faint);
+}
+
+.apparatusActions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.primary,
+.secondary {
+  min-height: 2.25rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.45rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    color 180ms var(--ease-standard),
+    border-color 180ms var(--ease-standard),
+    background-color 180ms var(--ease-standard);
+}
+
+.primary {
+  border: 1px solid var(--color-cobalt-deep);
+  background: var(--color-cobalt-deep);
+  color: #fff;
+}
+
+.primary:hover:not(:disabled) {
+  border-color: var(--color-cobalt);
+  background: var(--color-cobalt);
+}
+
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--color-hairline-strong);
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: var(--color-cobalt);
+  background: color-mix(in oklab, var(--color-cobalt) 5%, transparent);
+  color: var(--color-cobalt);
+}
+
+.primary:disabled,
+.secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--color-cobalt);
+  outline-offset: 3px;
+}
+
+.urdu {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.banner {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.error {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.info {
+  border-color: var(--color-info-border);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+[data-theme='dark'] .error {
+  border-color: var(--color-danger-dark-border);
+  background: var(--color-danger-dark-bg);
+  color: var(--color-danger-dark-text);
+}
+
+[data-theme='dark'] .info {
+  border-color: var(--color-info-dark-border);
+  background: var(--color-info-dark-bg);
+  color: var(--color-info-dark-text);
+}
+
+.personalizedSheet {
+  grid-column: 1;
+  padding: clamp(1.5rem, 2.8vw, 2.7rem);
+  border: 1px solid var(--color-hairline);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  box-shadow: 0 34px 68px -54px rgba(16, 26, 66, 0.55);
+}
+
+[data-theme='dark'] .personalizedSheet {
+  box-shadow: 0 34px 80px -50px rgba(0, 0, 0, 0.82);
+}
+
+.personalizedHead {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.35rem;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.personalizedRule {
+  width: 1.25rem;
+  height: 1px;
+  background: var(--color-hairline-strong);
+}
+
+.personalizedBody > *:first-child {
+  margin-top: 0;
+}
+
+@media (max-width: 1199px) {
+  .apparatusRow,
+  .messages,
+  .personalizedRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    max-width: 56rem;
+  }
+}
+
+@media (max-width: 996px) {
+  .apparatusRow,
+  .messages,
+  .personalizedRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    max-width: 48rem;
+  }
+
+  .apparatusInner {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .apparatusHead {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .apparatusActions {
+    flex-wrap: wrap;
+  }
+
+  .personalizedSheet {
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .apparatusActions {
+    width: 100%;
+  }
+
+  .primary,
+  .secondary {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}

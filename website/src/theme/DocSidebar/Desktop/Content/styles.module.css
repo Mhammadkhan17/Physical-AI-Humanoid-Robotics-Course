@@ -1,0 +1,97 @@
+.railHead {
+  flex: 0 0 auto;
+  padding: 1.35rem 1.15rem 1.15rem;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.railEyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-cobalt);
+}
+
+.railTitle {
+  margin: 0.55rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-stretch: 92%;
+  font-size: 1.05rem;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+}
+
+.railMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.railMetaDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-amber);
+}
+
+.railFoot {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.65rem;
+  padding: 1rem 1.15rem 1.4rem;
+  border-top: 1px solid var(--color-hairline);
+}
+
+.railSignal {
+  width: 7px;
+  height: 7px;
+  margin-top: 0.35rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-amber);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-amber) 16%, transparent);
+}
+
+.railFootTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-stretch: 92%;
+  font-size: 0.95rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.railFootCopy {
+  margin: 0.35rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--color-ink-soft);
+}
+
+@media (min-width: 997px) {
+  .menu {
+    flex-grow: 1;
+    padding: 0.7rem 0 0.7rem 0.35rem;
+    overflow-y: auto;
+  }
+  @supports (scrollbar-gutter: stable) {
+    .menu {
+      padding: 0.7rem 0 0.7rem 0.35rem;
+      scrollbar-gutter: stable;
+    }
+  }
+
+  .menuWithAnnouncementBar {
+    margin-bottom: var(--docusaurus-announcement-bar-height);
+  }
+}

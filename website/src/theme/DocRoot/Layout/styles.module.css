@@ -1,0 +1,30 @@
+.docsWrapper {
+  position: relative;
+  display: flex;
+  flex: 1 0 auto;
+  min-height: 100vh;
+  isolation: isolate;
+  background: var(--color-pearl);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  --ifm-font-family-base: var(--font-body);
+  --ifm-heading-font-family: var(--font-display);
+  --ifm-background-color: var(--color-pearl);
+}
+
+.docsWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(48% 38% at 92% 6%, color-mix(in oklab, var(--color-cobalt) 7%, transparent), transparent 72%),
+    radial-gradient(42% 34% at 4% 46%, color-mix(in oklab, var(--color-amber) 5%, transparent), transparent 74%);
+}
+
+.docRoot {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
