@@ -42,7 +42,6 @@ export default function DocSidebarDesktopContent({
   return (
     <>
       <div className={styles.railHead}>
-        <span className={styles.railEyebrow}>Course index</span>
         <p className={styles.railTitle}>Physical AI &amp; Humanoid Robotics</p>
         <div className={styles.railMeta}>
           <span>{moduleCount} modules</span>

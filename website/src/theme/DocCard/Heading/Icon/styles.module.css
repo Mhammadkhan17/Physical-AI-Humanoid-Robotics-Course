@@ -1,0 +1,6 @@
+.cardTitleIcon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-right: 0.6rem;
+  color: var(--color-cobalt);
+}

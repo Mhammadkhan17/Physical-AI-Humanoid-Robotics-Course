@@ -14,6 +14,12 @@ const config: Config = {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
   },
 
+  markdown: {
+    mdx1Compat: {
+      comments: true,
+    },
+  },
+
   // Set the production url of your site here
   url: 'https://physical-ai-humanoid-robotics-cours-zeta.vercel.app/', // Update for Vercel
   // Set the /<baseUrl>/ pathname under which your site is served
@@ -165,7 +171,7 @@ const config: Config = {
     },
     prism: {
       theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      darkTheme: prismThemes.nightOwl,
     },
   } satisfies Preset.ThemeConfig,
 };
